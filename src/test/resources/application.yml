@@ -14,6 +14,8 @@ spring:
       port: 6379
 
 app:
+  grpc:
+    port: 19090
   jwt:
     secret: test-secret-key-for-jwt-signing-at-least-32-bytes
     issuer: test-user-service

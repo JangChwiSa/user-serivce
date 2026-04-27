@@ -119,26 +119,29 @@
 
 ---
 
-## 4. 내부 API
+## 4. 내부 통신 API
 
 ### 4.1 내부 사용자 조회
-`GET /internal/users/{userId}`
+`gRPC User Lookup`
 
 기능:
 - 다른 서비스에서 사용자 정보를 조회할 때 사용
-- 내부 API 보안 적용 필수
+- 서비스 간 통신은 gRPC를 기본으로 사용
+- 내부 호출 전용 인증/인가 정책 적용 필수
 
 반환 정보:
 - userId
+- loginId
 - email
 - name
 - accountStatus
-- disabilityType
-- disabilityDegree
+- disabilities
+- desiredJob
 
 주의:
 - 비밀번호는 반환하지 않음
 - 민감 정보는 최소한만 반환
+- 기존 `/internal/users/{userId}` REST 엔드포인트는 임시 호환 또는 로컬 검증용으로만 유지 가능
 
 ---
 
@@ -155,8 +158,8 @@
 - 코드에 직접 하드코딩하지 않는다.
 
 ### 5.3 내부 API 보안
-- `/internal/**` API는 외부 사용자가 접근할 수 없도록 보호한다.
-- 내부 서비스 호출 전용 인증 방식을 적용한다.
+- gRPC 내부 통신은 별도 서비스 인증 정책을 적용한다.
+- 임시 REST 내부 API가 존재하더라도 외부 사용자가 접근할 수 없도록 보호한다.
 - 단순히 permitAll 처리하지 않는다.
 
 ---

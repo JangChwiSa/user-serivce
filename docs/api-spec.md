@@ -296,21 +296,23 @@ user_disabilities 삭제 후 재저장
 
 # 8. 내부 사용자 조회
 
-## GET /internal/users/{userId}
+## gRPC User Lookup
 
 ### 정책
 
-* 외부 접근 금지
-* 내부 서비스 전용
+* 외부 공개 API가 아니라 서비스 간 내부 통신으로만 사용한다
+* MSA 내부 통신은 REST가 아니라 gRPC를 기본으로 사용한다
+* 기존 `/internal/users/{userId}` REST 형태는 임시 호환 또는 로컬 검증용으로만 본다
 
 ### 처리
 
 ```text
 users 조회
 user_disabilities 조회
+필요한 최소 사용자 정보만 반환
 ```
 
-### Response
+### Response Shape
 
 ```json
 {

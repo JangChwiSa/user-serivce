@@ -26,6 +26,8 @@ logging:
     org.hibernate.SQL: debug
 
 app:
+  grpc:
+    port: ${GRPC_PORT:9090}
   jwt:
     secret: ${JWT_SECRET:change-me-to-a-secure-secret-key-with-at-least-32-bytes}
     issuer: ${JWT_ISSUER:user-service}

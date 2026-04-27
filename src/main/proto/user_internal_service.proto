@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package userservice.v1;
+
+option java_multiple_files = true;
+option java_outer_classname = "UserInternalServiceProto";
+option java_package = "com.jangchwisa.userservice.grpc";
+
+service UserInternalService {
+  rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse);
+}
+
+message GetUserByIdRequest {
+  int64 user_id = 1;
+}
+
+message GetUserByIdResponse {
+  int64 user_id = 1;
+  string login_id = 2;
+  string name = 3;
+  string email = 4;
+  string account_status = 5;
+  repeated string disabilities = 6;
+  string desired_job = 7;
+}
