@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: user-serivce
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/user_db?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-secure-secret-key-with-at-least-32-bytes}
+    issuer: ${JWT_ISSUER:user-service}
+    access-token-expiration-seconds: ${JWT_ACCESS_EXPIRATION_SECONDS:3600}
+    refresh-token-expiration-seconds: ${JWT_REFRESH_EXPIRATION_SECONDS:1209600}
+    remember-me-refresh-token-expiration-seconds: ${JWT_REMEMBER_ME_REFRESH_EXPIRATION_SECONDS:2592000}
+  security:
+    internal-api-key: ${INTERNAL_API_KEY:internal-api-key}
+    internal-api-header-name: ${INTERNAL_API_HEADER_NAME:X-Internal-Api-Key}

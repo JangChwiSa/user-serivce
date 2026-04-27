@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:userdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+app:
+  jwt:
+    secret: test-secret-key-for-jwt-signing-at-least-32-bytes
+    issuer: test-user-service
+    access-token-expiration-seconds: 3600
+    refresh-token-expiration-seconds: 1209600
+    remember-me-refresh-token-expiration-seconds: 2592000
+  security:
+    internal-api-key: test-internal-key
+    internal-api-header-name: X-Internal-Api-Key
