@@ -50,6 +50,7 @@ public class UserService {
         LocalDateTime now = LocalDateTime.now(clock);
         user.updateProfile(request.name(), request.gender(), request.email(), request.desiredJob(), now);
 
+        // 문서 기준으로 장애 정보는 부분 수정이 아니라 전체 교체 방식으로 관리한다.
         userDisabilityRepository.deleteAllByUserUserId(userId);
         saveDisabilities(user, request.disabilities(), now);
 
@@ -78,6 +79,7 @@ public class UserService {
 
     private void saveDisabilities(User user, List<String> disabilities, LocalDateTime now) {
         List<UserDisability> disabilityEntities = disabilities.stream()
+                // 수정 요청에도 중복 값이 들어올 수 있어 저장 전에 정규화한다.
                 .distinct()
                 .map(disability -> UserDisability.create(user, disability, now))
                 .toList();

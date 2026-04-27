@@ -96,6 +96,7 @@ public class AuthService {
         jwtTokenProvider.validateRefreshToken(request.refreshToken());
         Long userId = jwtTokenProvider.extractUserId(request.refreshToken());
 
+        // JWT 자체가 유효해도, 서버에 저장된 최신 Refresh Token과 일치해야만 재발급한다.
         String savedToken = refreshTokenService.get(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REFRESH_TOKEN_MISMATCH));
 
@@ -138,6 +139,7 @@ public class AuthService {
 
     private void saveDisabilities(User user, List<String> disabilities, LocalDateTime now) {
         List<UserDisability> disabilityEntities = disabilities.stream()
+                // 같은 장애 유형이 중복으로 들어와도 DB에는 한 번만 저장한다.
                 .distinct()
                 .map(disability -> UserDisability.create(user, disability, now))
                 .toList();

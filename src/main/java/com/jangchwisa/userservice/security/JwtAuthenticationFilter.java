@@ -45,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long userId = jwtTokenProvider.extractUserId(token);
             AuthenticatedUser principal = new AuthenticatedUser(userId);
 
+            // 이후 Controller에서는 @AuthenticationPrincipal로 userId만 꺼내 쓰면 된다.
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     principal,
                     null,

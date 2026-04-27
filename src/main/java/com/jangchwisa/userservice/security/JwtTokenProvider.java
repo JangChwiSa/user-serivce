@@ -76,6 +76,7 @@ public class JwtTokenProvider {
 
     private void validateToken(String token, TokenType expectedType) {
         Claims claims = parseClaims(token);
+        // Access Token과 Refresh Token을 같은 서명키로 만들더라도 용도를 엄격히 구분한다.
         String tokenType = claims.get(TOKEN_TYPE_CLAIM, String.class);
         if (!expectedType.name().equals(tokenType)) {
             throw new BusinessException(ErrorCode.INVALID_TOKEN);
