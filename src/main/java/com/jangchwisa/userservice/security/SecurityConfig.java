@@ -32,6 +32,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // 인증 없이 접근 가능한 공개 엔드포인트다.
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/reissue").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml"
+                        ).permitAll()
                         // 내부 API는 별도 헤더 인증을 통과한 호출만 허용한다.
                         .requestMatchers("/internal/**").hasRole("INTERNAL")
                         // 그 외 /api/** 요청은 Access Token 인증이 필요하다.
