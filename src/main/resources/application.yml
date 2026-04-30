@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user-serivce
+    name: user-service
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
     username: ${DB_USERNAME:root}
@@ -8,11 +8,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
+  flyway:
+    enabled: true
   data:
     redis:
       host: ${REDIS_HOST:localhost}
