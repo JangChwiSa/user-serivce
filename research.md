@@ -1,61 +1,61 @@
-# User Service Research
+﻿# User Service Research
 
-## 1. 프로젝트 요약
+## 1. ?꾨줈?앺듃 ?붿빟
 
-이 저장소는 `Didgo` 시스템의 `user-service`이며, 현재 `main` 브랜치는 Spring Boot 기반의 인증/사용자 관리 서비스 1차 구현 상태다.
+????μ냼??`Didgo` ?쒖뒪?쒖쓽 `user-service`?대ŉ, ?꾩옱 `main` 釉뚮옖移섎뒗 Spring Boot 湲곕컲???몄쬆/?ъ슜??愿由??쒕퉬??1李?援ы쁽 ?곹깭??
 
-현재 `main`이 제공하는 핵심 기능:
+?꾩옱 `main`???쒓났?섎뒗 ?듭떖 湲곕뒫:
 
-- 회원가입
-- 로그인
-- 로그아웃
-- Access/Refresh Token 기반 인증
-- 내 정보 조회
-- 내 정보 수정
-- 내부 사용자 조회 REST API
-- Swagger UI 노출
-- Docker 빌드/런타임 기본 설정
+- ?뚯썝媛??
+- 濡쒓렇??
+- 濡쒓렇?꾩썐
+- Access/Refresh Token 湲곕컲 ?몄쬆
+- ???뺣낫 議고쉶
+- ???뺣낫 ?섏젙
+- ?대? ?ъ슜??議고쉶 REST API
+- Swagger UI ?몄텧
+- Docker 鍮뚮뱶/?고???湲곕낯 ?ㅼ젙
 
-현재 `main`에는 아직 포함되지 않은 별도 브랜치:
+?꾩옱 `main`?먮뒗 ?꾩쭅 ?ы븿?섏? ?딆? 蹂꾨룄 釉뚮옖移?
 
 - `feat/grpc-internal-user-service`
-  - 내부 사용자 조회를 gRPC로 확장한 작업 브랜치
+  - ?대? ?ъ슜??議고쉶瑜?gRPC濡??뺤옣???묒뾽 釉뚮옖移?
 
-즉, `main`은 REST 중심의 안정화 브랜치이고, gRPC 전환은 별도 기능 브랜치에 분리되어 있다.
+利? `main`? REST 以묒떖???덉젙??釉뚮옖移섏씠怨? gRPC ?꾪솚? 蹂꾨룄 湲곕뒫 釉뚮옖移섏뿉 遺꾨━?섏뼱 ?덈떎.
 
-## 2. 현재 아키텍처
+## 2. ?꾩옱 ?꾪궎?띿쿂
 
-구조는 전형적인 계층형 Spring 애플리케이션이다.
+援ъ“???꾪삎?곸씤 怨꾩링??Spring ?좏뵆由ъ??댁뀡?대떎.
 
 - `controller`
-  - HTTP 요청/응답 처리
+  - HTTP ?붿껌/?묐떟 泥섎━
 - `service`
-  - 유스케이스와 비즈니스 흐름 처리
+  - ?좎뒪耳?댁뒪? 鍮꾩쫰?덉뒪 ?먮쫫 泥섎━
 - `repository`
-  - JPA 영속성 접근
+  - JPA ?곸냽???묎렐
 - `domain`
   - `User`, `UserDisability`, enum
 - `dto`
-  - API 요청/응답 계약
+  - API ?붿껌/?묐떟 怨꾩빟
 - `security`
-  - JWT 필터, 내부 API 키 필터, Security 설정
+  - JWT ?꾪꽣, ?대? API ???꾪꽣, Security ?ㅼ젙
 - `common`
-  - 공통 예외, 에러 응답
+  - 怨듯넻 ?덉쇅, ?먮윭 ?묐떟
 - `config`
-  - 설정 프로퍼티, Clock, OpenAPI
+  - ?ㅼ젙 ?꾨줈?쇳떚, Clock, OpenAPI
 
-설계 의도 자체는 비교적 명확하다.
+?ㅺ퀎 ?섎룄 ?먯껜??鍮꾧탳??紐낇솗?섎떎.
 
-- Controller는 thin하게 유지됨
-- Entity와 DTO가 분리됨
-- 토큰 처리와 Redis 저장이 별도 서비스로 분리됨
-- 시간 생성은 `Clock` 빈으로 추상화되어 테스트 가능성이 확보됨
+- Controller??thin?섍쾶 ?좎???
+- Entity? DTO媛 遺꾨━??
+- ?좏겙 泥섎━? Redis ??μ씠 蹂꾨룄 ?쒕퉬?ㅻ줈 遺꾨━??
+- ?쒓컙 ?앹꽦? `Clock` 鍮덉쑝濡?異붿긽?붾릺???뚯뒪??媛?μ꽦???뺣낫??
 
-## 3. 도메인 모델
+## 3. ?꾨찓??紐⑤뜽
 
 ### 3.1 User
 
-`[User.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/user/domain/User.java)` 는 다음 속성을 가진다.
+`[User.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/user/domain/User.java)` ???ㅼ쓬 ?띿꽦??媛吏꾨떎.
 
 - `userId`
 - `loginId`
@@ -70,402 +70,403 @@
 - `updatedAt`
 - `lastLoginAt`
 
-도메인 메서드:
+?꾨찓??硫붿꽌??
 
 - `create(...)`
 - `updateProfile(...)`
 - `updateLastLoginAt(...)`
 - `changeStatus(...)`
 
-평가:
+?됯?:
 
-- 생성과 수정 메서드가 분리되어 있어 흐름 파악이 쉽다
-- 상태 변경용 메서드가 있어 계정 정책 확장 가능성이 있다
-- 하지만 엔티티 자체에 비즈니스 불변식 검증은 거의 없다
+- ?앹꽦怨??섏젙 硫붿꽌?쒓? 遺꾨━?섏뼱 ?덉뼱 ?먮쫫 ?뚯븙???쎈떎
+- ?곹깭 蹂寃쎌슜 硫붿꽌?쒓? ?덉뼱 怨꾩젙 ?뺤콉 ?뺤옣 媛?μ꽦???덈떎
+- ?섏?留??뷀떚???먯껜??鍮꾩쫰?덉뒪 遺덈???寃利앹? 嫄곗쓽 ?녿떎
 
 ### 3.2 UserDisability
 
-`[UserDisability.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/user/domain/UserDisability.java)` 는 `user` 와 `disabilityType` 중심의 단순 모델이다.
+`[UserDisability.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/user/domain/UserDisability.java)` ??`user` ? `disabilityType` 以묒떖???⑥닚 紐⑤뜽?대떎.
 
-평가:
+?됯?:
 
-- 현재 API 명세의 `disabilities: [String]` 구조와 잘 맞는다
-- 하지만 `user-service.md` 에 적힌 `장애 정도`, `보조 필요사항`, `특이사항` 과는 맞지 않는다
+- ?꾩옱 API 紐낆꽭??`disabilities: [String]` 援ъ“? ??留욌뒗??
+- ?섏?留?`user-service.md` ???곹엺 `?μ븷 ?뺣룄`, `蹂댁“ ?꾩슂?ы빆`, `?뱀씠?ы빆` 怨쇰뒗 留욎? ?딅뒗??
 
-## 4. 인증/인가 구조
+## 4. ?몄쬆/?멸? 援ъ“
 
-핵심 파일:
+?듭떖 ?뚯씪:
 
-- `[SecurityConfig.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/security/SecurityConfig.java)`
-- `[JwtAuthenticationFilter.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/security/JwtAuthenticationFilter.java)`
-- `[InternalApiKeyFilter.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/security/InternalApiKeyFilter.java)`
-- `[JwtTokenProvider.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/security/JwtTokenProvider.java)`
+- `[SecurityConfig.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/SecurityConfig.java)`
+- `[JwtAuthenticationFilter.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/JwtAuthenticationFilter.java)`
+- `[InternalApiKeyFilter.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/InternalApiKeyFilter.java)`
+- `[JwtTokenProvider.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/JwtTokenProvider.java)`
 
-동작 방식:
+?숈옉 諛⑹떇:
 
-- 세션/폼 로그인/HTTP Basic 모두 비활성화
-- `/api/auth/signup`, `/api/auth/login`, `/api/auth/reissue` 공개
-- `/api/**` 는 JWT 인증 필요
-- `/internal/**` 는 별도 내부 API 키 필요
-- JWT 인증 성공 시 `AuthenticatedUser(userId)` 를 SecurityContext에 넣음
+- ?몄뀡/??濡쒓렇??HTTP Basic 紐⑤몢 鍮꾪솢?깊솕
+- `/api/auth/signup`, `/api/auth/login`, `/api/auth/reissue` 怨듦컻
+- `/api/**` ??JWT ?몄쬆 ?꾩슂
+- `/internal/**` ??蹂꾨룄 ?대? API ???꾩슂
+- JWT ?몄쬆 ?깃났 ??`AuthenticatedUser(userId)` 瑜?SecurityContext???ｌ쓬
 
-장점:
+?μ젏:
 
-- REST API 기준으로는 단순하고 이해하기 쉽다
-- Access Token/Refresh Token 타입을 claim으로 분리해 오용 가능성을 줄였다
-- 에러 응답을 JSON으로 일관되게 반환한다
+- REST API 湲곗??쇰줈???⑥닚?섍퀬 ?댄빐?섍린 ?쎈떎
+- Access Token/Refresh Token ??낆쓣 claim?쇰줈 遺꾨━???ㅼ슜 媛?μ꽦??以꾩???
+- ?먮윭 ?묐떟??JSON?쇰줈 ?쇨??섍쾶 諛섑솚?쒕떎
 
-주의점:
+二쇱쓽??
 
-- `main` 기준 내부 서비스 통신은 여전히 HTTP + API Key다
-- MSA 내부 통신을 gRPC로 가져가려는 방향과는 현재 `main`이 어긋난다
-- `JWT_SECRET` 기본값이 설정 파일에 fallback으로 들어 있어 운영에서는 반드시 환경변수 강제가 필요하다
+- `main` 湲곗? ?대? ?쒕퉬???듭떊? ?ъ쟾??HTTP + API Key??
+- MSA ?대? ?듭떊??gRPC濡?媛?멸??ㅻ뒗 諛⑺뼢怨쇰뒗 ?꾩옱 `main`???닿툔?쒕떎
+- `JWT_SECRET` 湲곕낯媛믪씠 ?ㅼ젙 ?뚯씪??fallback?쇰줈 ?ㅼ뼱 ?덉뼱 ?댁쁺?먯꽌??諛섎뱶???섍꼍蹂??媛뺤젣媛 ?꾩슂?섎떎
 
-## 5. 인증 유스케이스 분석
+## 5. ?몄쬆 ?좎뒪耳?댁뒪 遺꾩꽍
 
-핵심 파일:
+?듭떖 ?뚯씪:
 
-- `[AuthService.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/auth/service/AuthService.java)`
-- `[RefreshTokenService.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/auth/service/RefreshTokenService.java)`
+- `[AuthService.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/auth/service/AuthService.java)`
+- `[RefreshTokenService.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/auth/service/RefreshTokenService.java)`
 
-### 5.1 회원가입
+### 5.1 ?뚯썝媛??
 
-흐름:
+?먮쫫:
 
-- `loginId` 중복 확인
-- `email` 중복 확인
-- 비밀번호 암호화
-- `User` 저장
-- 장애 정보 저장
+- `loginId` 以묐났 ?뺤씤
+- `email` 以묐났 ?뺤씤
+- 鍮꾨?踰덊샇 ?뷀샇??
+- `User` ???
+- ?μ븷 ?뺣낫 ???
 
-평가:
+?됯?:
 
-- 기본 흐름은 명세와 일치
-- `disabilities` 중복 입력을 `distinct()` 로 정리하는 점은 좋다
+- 湲곕낯 ?먮쫫? 紐낆꽭? ?쇱튂
+- `disabilities` 以묐났 ?낅젰??`distinct()` 濡??뺣━?섎뒗 ?먯? 醫뗫떎
 
-### 5.2 로그인
+### 5.2 濡쒓렇??
 
-흐름:
+?먮쫫:
 
-- `loginId` 로 사용자 조회
-- 비밀번호 검증
-- 계정 상태 검증
-- `lastLoginAt` 갱신
-- Access/Refresh Token 발급
-- Refresh Token Redis 저장
-- 사용자 요약 응답 반환
+- `loginId` 濡??ъ슜??議고쉶
+- 鍮꾨?踰덊샇 寃利?
+- 怨꾩젙 ?곹깭 寃利?
+- `lastLoginAt` 媛깆떊
+- Access/Refresh Token 諛쒓툒
+- Refresh Token Redis ???
+- ?ъ슜???붿빟 ?묐떟 諛섑솚
 
-평가:
+?됯?:
 
-- 문서 기준 핵심 요구를 충족
-- `rememberMe` 에 따라 Refresh Token 만료시간 분기 처리도 있음
+- 臾몄꽌 湲곗? ?듭떖 ?붽뎄瑜?異⑹”
+- `rememberMe` ???곕씪 Refresh Token 留뚮즺?쒓컙 遺꾧린 泥섎━???덉쓬
 
-### 5.3 로그아웃
+### 5.3 濡쒓렇?꾩썐
 
-흐름:
+?먮쫫:
 
-- 현재 사용자 기준 Redis Refresh Token 삭제
+- ?꾩옱 ?ъ슜??湲곗? Redis Refresh Token ??젣
 
-평가:
+?됯?:
 
-- 명세와 일치
-- Access Token 블랙리스트는 구현하지 않음
+- 紐낆꽭? ?쇱튂
+- Access Token 釉붾옓由ъ뒪?몃뒗 援ы쁽?섏? ?딆쓬
 
-### 5.4 재발급
+### 5.4 ?щ컻湲?
 
-흐름:
+?먮쫫:
 
-- Refresh Token JWT 검증
-- 토큰에서 `userId` 추출
-- Redis 저장값과 일치 여부 확인
-- 계정 상태 재검증
-- 새 Access Token 발급
-- 새 Refresh Token 발급 및 Redis 갱신
+- Refresh Token JWT 寃利?
+- ?좏겙?먯꽌 `userId` 異붿텧
+- Redis ??κ컪怨??쇱튂 ?щ? ?뺤씤
+- 怨꾩젙 ?곹깭 ?ш?利?
+- ??Access Token 諛쒓툒
+- ??Refresh Token 諛쒓툒 諛?Redis 媛깆떊
 
-평가:
+?됯?:
 
-- 서버 저장값 대조를 통해 탈취/재사용 위험을 일부 완화한다
-- 다만 현재 구현은 `rememberMe` 상태를 재발급에 유지하지 않는다
-  - 재발급 시 항상 `false` 기준 만료시간으로 새 Refresh Token을 만든다
+- ?쒕쾭 ??κ컪 ?議곕? ?듯빐 ?덉랬/?ъ궗???꾪뿕???쇰? ?꾪솕?쒕떎
+- ?ㅻ쭔 ?꾩옱 援ы쁽? `rememberMe` ?곹깭瑜??щ컻湲됱뿉 ?좎??섏? ?딅뒗??
+  - ?щ컻湲?????긽 `false` 湲곗? 留뚮즺?쒓컙?쇰줈 ??Refresh Token??留뚮뱺??
 
-## 6. 사용자 API 분석
+## 6. ?ъ슜??API 遺꾩꽍
 
-핵심 파일:
+?듭떖 ?뚯씪:
 
-- `[UserService.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/user/service/UserService.java)`
-- `[UserController.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/user/controller/UserController.java)`
-- `[InternalUserController.java](/Users/byeok27/Documents/GitHub/user-serivce/src/main/java/com/didgo/userservice/user/controller/InternalUserController.java)`
+- `[UserService.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/user/service/UserService.java)`
+- `[UserController.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/user/controller/UserController.java)`
+- `[InternalUserController.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/user/controller/InternalUserController.java)`
 
-### 6.1 내 정보 조회
+### 6.1 ???뺣낫 議고쉶
 
-응답은 `loginId`, `name`, `birthDate`, `gender`, `email`, `disabilities`, `desiredJob`, `accountStatus` 를 포함한다.
+?묐떟? `loginId`, `name`, `birthDate`, `gender`, `email`, `disabilities`, `desiredJob`, `accountStatus` 瑜??ы븿?쒕떎.
 
-평가:
+?됯?:
 
-- API 명세와 대체로 일치
-- `gender` 를 문자열로 직렬화하는 단순한 구조다
+- API 紐낆꽭? ?泥대줈 ?쇱튂
+- `gender` 瑜?臾몄옄?대줈 吏곷젹?뷀븯???⑥닚??援ъ“??
 
-### 6.2 내 정보 수정
+### 6.2 ???뺣낫 ?섏젙
 
-흐름:
+?먮쫫:
 
-- 사용자 조회
-- 이메일 중복 검사
-- 기본 정보 수정
-- 기존 장애 정보 전체 삭제
-- 새 장애 정보 재저장
+- ?ъ슜??議고쉶
+- ?대찓??以묐났 寃??
+- 湲곕낯 ?뺣낫 ?섏젙
+- 湲곗〈 ?μ븷 ?뺣낫 ?꾩껜 ??젣
+- ???μ븷 ?뺣낫 ?ъ???
 
-평가:
+?됯?:
 
-- 트랜잭션 경계가 명확하다
-- 장애 정보는 patch가 아니라 replace semantics다
+- ?몃옖??뀡 寃쎄퀎媛 紐낇솗?섎떎
+- ?μ븷 ?뺣낫??patch媛 ?꾨땲??replace semantics??
 
-### 6.3 내부 사용자 조회
+### 6.3 ?대? ?ъ슜??議고쉶
 
-현재 `main` 에서는 `/internal/users/{userId}` REST 엔드포인트로 제공된다.
+?꾩옱 `main` ?먯꽌??`/internal/users/{userId}` REST ?붾뱶?ъ씤?몃줈 ?쒓났?쒕떎.
 
-평가:
+?됯?:
 
-- 내부 서비스에서 필요한 최소 정보 반환이라는 의도는 분명하다
-- 하지만 gRPC 전환 계획과는 충돌한다
-- 현재 브랜치 구조상 gRPC 버전은 `feat/grpc-internal-user-service` 에만 존재한다
+- ?대? ?쒕퉬?ㅼ뿉???꾩슂??理쒖냼 ?뺣낫 諛섑솚?대씪???섎룄??遺꾨챸?섎떎
+- ?섏?留?gRPC ?꾪솚 怨꾪쉷怨쇰뒗 異⑸룎?쒕떎
+- ?꾩옱 釉뚮옖移?援ъ“??gRPC 踰꾩쟾? `feat/grpc-internal-user-service` ?먮쭔 議댁옱?쒕떎
 
-## 7. 테스트 상태
+## 7. ?뚯뒪???곹깭
 
-현재 테스트는 서비스 레이어 중심이다.
+?꾩옱 ?뚯뒪?몃뒗 ?쒕퉬???덉씠??以묒떖?대떎.
 
-파일:
+?뚯씪:
 
-- `[AuthServiceTest.java](/Users/byeok27/Documents/GitHub/user-serivce/src/test/java/com/didgo/userservice/auth/service/AuthServiceTest.java)`
-- `[UserServiceTest.java](/Users/byeok27/Documents/GitHub/user-serivce/src/test/java/com/didgo/userservice/user/service/UserServiceTest.java)`
+- `[AuthServiceTest.java](/Users/byeok27/Documents/GitHub/user-service/src/test/java/com/didgo/userservice/auth/service/AuthServiceTest.java)`
+- `[UserServiceTest.java](/Users/byeok27/Documents/GitHub/user-service/src/test/java/com/didgo/userservice/user/service/UserServiceTest.java)`
 
-포함되는 검증:
+?ы븿?섎뒗 寃利?
 
-- 회원가입 시 비밀번호 암호화
-- 로그인 성공
-- 잠긴 계정 로그인 실패
-- Refresh Token 불일치 시 재발급 실패
-- 로그아웃 시 Redis 삭제 호출
-- 내 정보 조회
-- 내 정보 수정
-- 중복 이메일 수정 실패
-- 내부 사용자 조회
+- ?뚯썝媛????鍮꾨?踰덊샇 ?뷀샇??
+- 濡쒓렇???깃났
+- ?좉릿 怨꾩젙 濡쒓렇???ㅽ뙣
+- Refresh Token 遺덉씪移????щ컻湲??ㅽ뙣
+- 濡쒓렇?꾩썐 ??Redis ??젣 ?몄텧
+- ???뺣낫 議고쉶
+- ???뺣낫 ?섏젙
+- 以묐났 ?대찓???섏젙 ?ㅽ뙣
+- ?대? ?ъ슜??議고쉶
 
-장점:
+?μ젏:
 
-- 비즈니스 로직 단위 검증은 잘 되어 있음
-- `Clock.fixed(...)` 를 사용해 시간 관련 테스트를 안정화함
+- 鍮꾩쫰?덉뒪 濡쒖쭅 ?⑥쐞 寃利앹? ???섏뼱 ?덉쓬
+- `Clock.fixed(...)` 瑜??ъ슜???쒓컙 愿???뚯뒪?몃? ?덉젙?뷀븿
 
-부족한 점:
+遺議깊븳 ??
 
-- Controller/WebMvc 테스트 없음
-- Security 필터 통합 테스트 없음
-- JPA 매핑 테스트 없음
-- 실제 Redis/MySQL 통합 테스트 없음
-- Swagger/OpenAPI 노출 테스트 없음
-- Docker 빌드/실행 검증 없음
+- Controller/WebMvc ?뚯뒪???놁쓬
+- Security ?꾪꽣 ?듯빀 ?뚯뒪???놁쓬
+- JPA 留ㅽ븨 ?뚯뒪???놁쓬
+- ?ㅼ젣 Redis/MySQL ?듯빀 ?뚯뒪???놁쓬
+- Swagger/OpenAPI ?몄텧 ?뚯뒪???놁쓬
+- Docker 鍮뚮뱶/?ㅽ뻾 寃利??놁쓬
 
-## 8. 설정 및 실행 환경
+## 8. ?ㅼ젙 諛??ㅽ뻾 ?섍꼍
 
-### 8.1 애플리케이션 설정
+### 8.1 ?좏뵆由ъ??댁뀡 ?ㅼ젙
 
-`[application.yml](/Users/byeok27/Documents/GitHub/user-serivce/src/main/resources/application.yml)` 기준:
+`[application.yml](/Users/byeok27/Documents/GitHub/user-service/src/main/resources/application.yml)` 湲곗?:
 
-- DB 기본값은 로컬 MySQL
-- Redis 기본값은 로컬 `localhost:6379`
+- DB 湲곕낯媛믪? 濡쒖뺄 MySQL
+- Redis 湲곕낯媛믪? 濡쒖뺄 `localhost:6379`
 - JPA `ddl-auto: update`
-- Hibernate SQL debug 활성화
-- Swagger UI 경로 `/swagger-ui.html`
+- Hibernate SQL debug ?쒖꽦??
+- Swagger UI 寃쎈줈 `/swagger-ui.html`
 
-평가:
+?됯?:
 
-- 개발 편의성은 높다
-- 운영 기준으로는 위험 요소가 있다
+- 媛쒕컻 ?몄쓽?깆? ?믩떎
+- ?댁쁺 湲곗??쇰줈???꾪뿕 ?붿냼媛 ?덈떎
 
-운영 리스크:
+?댁쁺 由ъ뒪??
 
-- `ddl-auto: update` 는 운영 DB에 부적절할 가능성이 높다
-- 기본 `JWT_SECRET` fallback 값 존재
-- 기본 DB 비밀번호가 `password`
-- 내부 API 키도 기본값 존재
+- `ddl-auto: update` ???댁쁺 DB??遺?곸젅??媛?μ꽦???믩떎
+- 湲곕낯 `JWT_SECRET` fallback 媛?議댁옱
+- 湲곕낯 DB 鍮꾨?踰덊샇媛 `password`
+- ?대? API ?ㅻ룄 湲곕낯媛?議댁옱
 
 ### 8.2 Docker
 
-파일:
+?뚯씪:
 
-- `[Dockerfile](/Users/byeok27/Documents/GitHub/user-serivce/Dockerfile)`
-- `[.dockerignore](/Users/byeok27/Documents/GitHub/user-serivce/.dockerignore)`
+- `[Dockerfile](/Users/byeok27/Documents/GitHub/user-service/Dockerfile)`
+- `[.dockerignore](/Users/byeok27/Documents/GitHub/user-service/.dockerignore)`
 
-특징:
+?뱀쭠:
 
-- 멀티스테이지 빌드 사용
-- JDK 21로 빌드 후 JRE 21 이미지로 실행
-- 테스트는 건너뛰고 패키징
+- 硫?곗뒪?뚯씠吏 鍮뚮뱶 ?ъ슜
+- JDK 21濡?鍮뚮뱶 ??JRE 21 ?대?吏濡??ㅽ뻾
+- ?뚯뒪?몃뒗 嫄대꼫?곌퀬 ?⑦궎吏?
 
-평가:
+?됯?:
 
-- 기본 컨테이너 실행에는 충분하다
-- 하지만 운영용 헬스체크, non-root 사용자, 환경별 프로파일 전략은 없다
+- 湲곕낯 而⑦뀒?대꼫 ?ㅽ뻾?먮뒗 異⑸텇?섎떎
+- ?섏?留??댁쁺???ъ뒪泥댄겕, non-root ?ъ슜?? ?섍꼍蹂??꾨줈?뚯씪 ?꾨왂? ?녿떎
 
-## 9. 문서와 코드의 일치도
+## 9. 臾몄꽌? 肄붾뱶???쇱튂??
 
-현재 저장소의 가장 큰 문제는 문서 일관성이 완전히 닫혀 있지 않다는 점이다.
+?꾩옱 ??μ냼??媛????臾몄젣??臾몄꽌 ?쇨??깆씠 ?꾩쟾???ロ? ?덉? ?딅떎???먯씠??
 
-### 9.1 일치하는 부분
+### 9.1 ?쇱튂?섎뒗 遺遺?
 
-- 로그인 식별자를 `loginId` 로 사용하는 실제 구현
-- JWT + Redis Refresh Token 구조
-- `users`, `user_disabilities` 분리 구조
-- 계정 상태 `ACTIVE`, `LOCKED`, `WITHDRAWN`
-- 사용자 수정 시 장애 정보 전체 교체
+- 濡쒓렇???앸퀎?먮? `loginId` 濡??ъ슜?섎뒗 ?ㅼ젣 援ы쁽
+- JWT + Redis Refresh Token 援ъ“
+- `users`, `user_disabilities` 遺꾨━ 援ъ“
+- 怨꾩젙 ?곹깭 `ACTIVE`, `LOCKED`, `WITHDRAWN`
+- ?ъ슜???섏젙 ???μ븷 ?뺣낫 ?꾩껜 援먯껜
 
-### 9.2 불일치하는 부분
+### 9.2 遺덉씪移섑븯??遺遺?
 
-#### `docs/user-service.md` 와 실제 코드
+#### `docs/user-service.md` ? ?ㅼ젣 肄붾뱶
 
-- 문서는 로그인 기준이 `이메일/비밀번호` 로 서술됨
-- 실제 구현은 `loginId/비밀번호`
+- 臾몄꽌??濡쒓렇??湲곗???`?대찓??鍮꾨?踰덊샇` 濡??쒖닠??
+- ?ㅼ젣 援ы쁽? `loginId/鍮꾨?踰덊샇`
 
-- 문서는 `phone`, `withdrawnAt`, `disabilityDegree`, `supportNeeds`, `notes` 등을 암시
-- 실제 DB/코드는 해당 필드 없음
+- 臾몄꽌??`phone`, `withdrawnAt`, `disabilityDegree`, `supportNeeds`, `notes` ?깆쓣 ?붿떆
+- ?ㅼ젣 DB/肄붾뱶???대떦 ?꾨뱶 ?놁쓬
 
-- 문서는 내부 API를 `/internal/users/{userId}` 로 설명
-- 브랜치 전략상 gRPC 전환을 별도로 진행 중이나 `main`에는 반영되지 않음
+- 臾몄꽌???대? API瑜?`/internal/users/{userId}` 濡??ㅻ챸
+- 釉뚮옖移??꾨왂??gRPC ?꾪솚??蹂꾨룄濡?吏꾪뻾 以묒씠??`main`?먮뒗 諛섏쁺?섏? ?딆쓬
 
-#### `AGENTS.md` 와 현재 `main`
+#### `AGENTS.md` ? ?꾩옱 `main`
 
-- `AGENTS.md` 는 gRPC 규칙을 강하게 요구하는 방향으로 정리됐을 수 있으나, 현재 `main`은 gRPC 구현을 포함하지 않음
-- 즉 현재 `main`은 문서보다 한 단계 이전의 구현 상태로 볼 수 있다
+- `AGENTS.md` ??gRPC 洹쒖튃??媛뺥븯寃??붽뎄?섎뒗 諛⑺뼢?쇰줈 ?뺣━?먯쓣 ???덉쑝?? ?꾩옱 `main`? gRPC 援ы쁽???ы븿?섏? ?딆쓬
+- 利??꾩옱 `main`? 臾몄꽌蹂대떎 ???④퀎 ?댁쟾??援ы쁽 ?곹깭濡?蹂????덈떎
 
-## 10. 현재 브랜치 해석
+## 10. ?꾩옱 釉뚮옖移??댁꽍
 
-현재 Git 상태:
+?꾩옱 Git ?곹깭:
 
 - `main`
-  - Swagger + Docker 반영, REST 중심 안정화 브랜치
+  - Swagger + Docker 諛섏쁺, REST 以묒떖 ?덉젙??釉뚮옖移?
 - `feat/project-bootstrap`
-  - 초기 부트스트랩
+  - 珥덇린 遺?몄뒪?몃옪
 - `feat/auth-token-management`
-  - JWT/Redis 인증 구현
+  - JWT/Redis ?몄쬆 援ы쁽
 - `feat/user-profile-apis`
-  - 사용자 API와 주석 추가
+  - ?ъ슜??API? 二쇱꽍 異붽?
 - `feat/grpc-internal-user-service`
-  - gRPC 내부 조회 확장
+  - gRPC ?대? 議고쉶 ?뺤옣
 
-실무적으로는 이 해석이 가장 맞다.
+?ㅻТ?곸쑝濡쒕뒗 ???댁꽍??媛??留욌떎.
 
-- `main`은 현재 배포 후보
-- `feat/grpc-internal-user-service` 는 다음 단계 기능 브랜치
+- `main`? ?꾩옱 諛고룷 ?꾨낫
+- `feat/grpc-internal-user-service` ???ㅼ쓬 ?④퀎 湲곕뒫 釉뚮옖移?
 
-즉, 지금 저장소는 “REST 기반 user-service 1차 구현”과 “gRPC 전환 2차 작업”이 브랜치로 분리된 상태다.
+利? 吏湲???μ냼???쏳EST 湲곕컲 user-service 1李?援ы쁽?앷낵 ?쐅RPC ?꾪솚 2李??묒뾽?앹씠 釉뚮옖移섎줈 遺꾨━???곹깭??
 
-## 11. 강점
+## 11. 媛뺤젏
 
-- 구조가 단순하고 파악이 쉽다
-- 비즈니스 로직과 HTTP 레이어가 분리돼 있다
-- JWT/Refresh Token 처리 흐름이 명확하다
-- 테스트 가능성을 고려해 `Clock` 주입 구조를 도입했다
-- 서비스 레이어 테스트 커버리지가 최소 수준은 확보돼 있다
-- Swagger와 Docker가 추가되며 개발 편의성이 향상됐다
+- 援ъ“媛 ?⑥닚?섍퀬 ?뚯븙???쎈떎
+- 鍮꾩쫰?덉뒪 濡쒖쭅怨?HTTP ?덉씠?닿? 遺꾨━???덈떎
+- JWT/Refresh Token 泥섎━ ?먮쫫??紐낇솗?섎떎
+- ?뚯뒪??媛?μ꽦??怨좊젮??`Clock` 二쇱엯 援ъ“瑜??꾩엯?덈떎
+- ?쒕퉬???덉씠???뚯뒪??而ㅻ쾭由ъ?媛 理쒖냼 ?섏?? ?뺣낫???덈떎
+- Swagger? Docker媛 異붽??섎ŉ 媛쒕컻 ?몄쓽?깆씠 ?μ긽?먮떎
 
-## 12. 주요 리스크
+## 12. 二쇱슂 由ъ뒪??
 
-### 12.1 문서 드리프트
+### 12.1 臾몄꽌 ?쒕━?꾪듃
 
-가장 큰 리스크다.
+媛????由ъ뒪?щ떎.
 
 - `api-spec.md`
 - `user-service.md`
 - `AGENTS.md`
-- 실제 `main`
+- ?ㅼ젣 `main`
 
-이 네 축이 완전히 일치하지 않는다.
+????異뺤씠 ?꾩쟾???쇱튂?섏? ?딅뒗??
 
-### 12.2 내부 통신 방식 미정착
+### 12.2 ?대? ?듭떊 諛⑹떇 誘몄젙李?
 
-- `main`은 내부 REST
-- 별도 브랜치는 gRPC
+- `main`? ?대? REST
+- 蹂꾨룄 釉뚮옖移섎뒗 gRPC
 
-이 상태가 길어지면 다른 서비스가 어느 계약을 따라야 할지 불명확해진다.
+???곹깭媛 湲몄뼱吏硫??ㅻⅨ ?쒕퉬?ㅺ? ?대뒓 怨꾩빟???곕씪???좎? 遺덈챸?뺥빐吏꾨떎.
 
-### 12.3 운영 설정 안전성 부족
+### 12.3 ?댁쁺 ?ㅼ젙 ?덉쟾??遺議?
 
 - `ddl-auto: update`
-- fallback 비밀값
-- 내부 API 키 기본값
+- fallback 鍮꾨?媛?
+- ?대? API ??湲곕낯媛?
 
-운영 환경 투입 전 정리 필요
+?댁쁺 ?섍꼍 ?ъ엯 ???뺣━ ?꾩슂
 
-### 12.4 테스트 범위 제한
+### 12.4 ?뚯뒪??踰붿쐞 ?쒗븳
 
-- 통합 테스트 부재
-- 보안 필터 테스트 부재
-- 실제 Redis/MySQL 연동 테스트 부재
+- ?듯빀 ?뚯뒪??遺??
+- 蹂댁븞 ?꾪꽣 ?뚯뒪??遺??
+- ?ㅼ젣 Redis/MySQL ?곕룞 ?뚯뒪??遺??
 
-### 12.5 내부 API 보안 단순화
+### 12.5 ?대? API 蹂댁븞 ?⑥닚??
 
-- 현재 `/internal/**` 는 단순 API Key 헤더 방식
-- 서비스 메시 환경, mTLS, gRPC 인증 등 장기 설계로 보기엔 약하다
+- ?꾩옱 `/internal/**` ???⑥닚 API Key ?ㅻ뜑 諛⑹떇
+- ?쒕퉬??硫붿떆 ?섍꼍, mTLS, gRPC ?몄쬆 ???κ린 ?ㅺ퀎濡?蹂닿린???쏀븯??
 
-## 13. 추천 우선순위
+## 13. 異붿쿇 ?곗꽑?쒖쐞
 
-### 1순위: 기준 문서 정리
+### 1?쒖쐞: 湲곗? 臾몄꽌 ?뺣━
 
-먼저 하나를 확정해야 한다.
+癒쇱? ?섎굹瑜??뺤젙?댁빞 ?쒕떎.
 
-- `main` 기준으로 문서를 맞출지
-- `gRPC 브랜치` 기준으로 차기 명세를 맞출지
+- `main` 湲곗??쇰줈 臾몄꽌瑜?留욎텧吏
+- `gRPC 釉뚮옖移? 湲곗??쇰줈 李④린 紐낆꽭瑜?留욎텧吏
 
-### 2순위: 인프라 연결 검증
+### 2?쒖쐞: ?명봽???곌껐 寃利?
 
-- MySQL 실제 연결
-- Redis 실제 연결
-- 애플리케이션 기동
-- Swagger 확인
-- 회원가입/로그인/재발급 수동 테스트
+- MySQL ?ㅼ젣 ?곌껐
+- Redis ?ㅼ젣 ?곌껐
+- ?좏뵆由ъ??댁뀡 湲곕룞
+- Swagger ?뺤씤
+- ?뚯썝媛??濡쒓렇???щ컻湲??섎룞 ?뚯뒪??
 
-### 3순위: 내부 통신 전략 확정
+### 3?쒖쐞: ?대? ?듭떊 ?꾨왂 ?뺤젙
 
-둘 중 하나를 명확히 해야 한다.
+??以??섎굹瑜?紐낇솗???댁빞 ?쒕떎.
 
-- 단기: `/internal/**` 유지
-- 중기: gRPC 브랜치 머지
+- ?④린: `/internal/**` ?좎?
+- 以묎린: gRPC 釉뚮옖移?癒몄?
 
-### 4순위: 운영 준비
+### 4?쒖쐞: ?댁쁺 以鍮?
 
-- Flyway/Liquibase 도입
-- 환경변수 강제
-- 비밀값 fallback 제거
-- Docker 실행 전략 개선
+- Flyway/Liquibase ?꾩엯
+- ?섍꼍蹂??媛뺤젣
+- 鍮꾨?媛?fallback ?쒓굅
+- Docker ?ㅽ뻾 ?꾨왂 媛쒖꽑
 
-### 5순위: 테스트 확장
+### 5?쒖쐞: ?뚯뒪???뺤옣
 
-- Controller/WebMvc 테스트
-- Security 통합 테스트
-- Repository/JPA 테스트
-- MySQL/Redis 통합 테스트
+- Controller/WebMvc ?뚯뒪??
+- Security ?듯빀 ?뚯뒪??
+- Repository/JPA ?뚯뒪??
+- MySQL/Redis ?듯빀 ?뚯뒪??
 
-## 14. 결론
+## 14. 寃곕줎
 
-이 프로젝트는 현재 “기능 구현 자체는 충분히 진행된 user-service”다. 특히 인증과 사용자 관리의 기본 뼈대는 이미 usable한 수준이다.
+???꾨줈?앺듃???꾩옱 ?쒓린??援ы쁽 ?먯껜??異⑸텇??吏꾪뻾??user-service?앸떎. ?뱁엳 ?몄쬆怨??ъ슜??愿由ъ쓽 湲곕낯 堉덈????대? usable???섏??대떎.
 
-다만 문제의 중심은 코드 품질보다 `기준의 분산`이다.
+?ㅻ쭔 臾몄젣??以묒떖? 肄붾뱶 ?덉쭏蹂대떎 `湲곗???遺꾩궛`?대떎.
 
-- 문서가 서로 다름
-- `main`과 `gRPC` 방향이 분리돼 있음
-- 운영 기준 설정이 아직 개발 친화 상태임
+- 臾몄꽌媛 ?쒕줈 ?ㅻ쫫
+- `main`怨?`gRPC` 諛⑺뼢??遺꾨━???덉쓬
+- ?댁쁺 湲곗? ?ㅼ젙???꾩쭅 媛쒕컻 移쒗솕 ?곹깭??
 
-따라서 다음 단계의 핵심은 새로운 기능 추가보다 아래 세 가지다.
+?곕씪???ㅼ쓬 ?④퀎???듭떖? ?덈줈??湲곕뒫 異붽?蹂대떎 ?꾨옒 ??媛吏??
 
-1. 어떤 브랜치를 기준 구현으로 삼을지 확정
-2. MySQL/Redis 실연결과 수동 테스트 완료
-3. 내부 통신 전략을 REST 유지 또는 gRPC 전환 중 하나로 닫기
+1. ?대뼡 釉뚮옖移섎? 湲곗? 援ы쁽?쇰줈 ?쇱쓣吏 ?뺤젙
+2. MySQL/Redis ?ㅼ뿰寃곌낵 ?섎룞 ?뚯뒪???꾨즺
+3. ?대? ?듭떊 ?꾨왂??REST ?좎? ?먮뒗 gRPC ?꾪솚 以??섎굹濡??リ린
 
-현재 `main`만 기준으로 보면:
+?꾩옱 `main`留?湲곗??쇰줈 蹂대㈃:
 
-- REST 기반 user-service 1차 구현은 완료에 가깝다
-- 실환경 연결과 문서 정리가 남아 있다
+- REST 湲곕컲 user-service 1李?援ы쁽? ?꾨즺??媛源앸떎
+- ?ㅽ솚寃??곌껐怨?臾몄꽌 ?뺣━媛 ?⑥븘 ?덈떎
 
-현재 저장소 전체를 기준으로 보면:
+?꾩옱 ??μ냼 ?꾩껜瑜?湲곗??쇰줈 蹂대㈃:
 
-- gRPC 전환까지 포함한 구조 개편은 아직 진행 중이다
+- gRPC ?꾪솚源뚯? ?ы븿??援ъ“ 媛쒗렪? ?꾩쭅 吏꾪뻾 以묒씠??
+
