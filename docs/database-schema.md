@@ -1,94 +1,93 @@
-# 데이터베이스 구조 설계
+﻿# ?곗씠?곕쿋?댁뒪 援ъ“ ?ㅺ퀎
 
-WBS 항목: 3.4 DB/ERD 설계 (https://www.notion.so/3-4-DB-ERD-4faffa9d0afd49bf8053d11ae9062d8b?pvs=21)
-상태: 대기
-유형: 설계
+WBS ??ぉ: 3.4 DB/ERD ?ㅺ퀎 (https://www.notion.so/3-4-DB-ERD-4faffa9d0afd49bf8053d11ae9062d8b?pvs=21)
+?곹깭: ?湲?
+?좏삎: ?ㅺ퀎
 
-# 데이터베이스 구조 설계
+# ?곗씠?곕쿋?댁뒪 援ъ“ ?ㅺ퀎
 
-## 1. 설계 기준
-
-```
-user_db     : 사용자 계정, 회원가입, 로그인, 내정보 관리를 담당한다.
-training_db : 사회성/안전/집중력/문서이해 훈련의 세션, 로그, 점수, 피드백을 담당한다.
-report_db   : 훈련 결과를 집계한 리포트와 리포트 스냅샷을 담당한다.
-```
-
-## 1.1 user_id 설계 원칙
+## 1. ?ㅺ퀎 湲곗?
 
 ```
-- 사용자별 데이터는 반드시 user_id를 기준으로 소유자를 식별한다.
-- 클라이언트 요청 바디에서 user_id를 직접 받지 않고, 인증 토큰에서 추출한 사용자 ID를 서버가 사용한다.
-- 훈련 원본 콘텐츠 테이블에는 user_id를 넣지 않는다.
-  예: social_scenarios, safety_scenarios, safety_scenes, safety_choices, document_questions
-- 사용자 수행 결과 또는 사용자별 요약 테이블에는 user_id를 직접 저장한다.
-  예: training_sessions, user_*_progress, training_session_summaries, report_summary
-- 세부 로그 테이블은 session_id를 통해 user_id를 추적한다.
-  예: social_dialog_logs, safety_action_logs, focus_reaction_logs, document_answer_logs
+user_db     : ?ъ슜??怨꾩젙, ?뚯썝媛?? 濡쒓렇?? ?댁젙蹂?愿由щ? ?대떦?쒕떎.
+training_db : ?ы쉶???덉쟾/吏묒쨷??臾몄꽌?댄빐 ?덈젴???몄뀡, 濡쒓렇, ?먯닔, ?쇰뱶諛깆쓣 ?대떦?쒕떎.
 ```
 
-## 1.2 정합성 보완 기준
+## 1.1 user_id ?ㅺ퀎 ?먯튃
 
 ```
-- 훈련 기록 목록 화면은 원본 로그 테이블을 직접 조회하지 않고 training_session_summaries를 우선 조회한다.
-- 훈련 상세 화면은 session_id 기반으로 원본 로그 테이블을 조회한다.
-- training_session_summaries는 목록 화면에 필요한 시나리오명, 카테고리, 점수, 정답 수, 피드백 요약을 스냅샷 형태로 보관한다.
-- 집중력 훈련은 별도 상세보기 API를 제공하지 않고, progress 조회와 sessions 목록 조회로 결과 확인을 대체한다.
-- focus_reaction_logs는 내부 분석, 리포트 계산, 운영 점검 용도로 사용한다.
+- ?ъ슜?먮퀎 ?곗씠?곕뒗 諛섎뱶??user_id瑜?湲곗??쇰줈 ?뚯쑀?먮? ?앸퀎?쒕떎.
+- ?대씪?댁뼵???붿껌 諛붾뵒?먯꽌 user_id瑜?吏곸젒 諛쏆? ?딄퀬, ?몄쬆 ?좏겙?먯꽌 異붿텧???ъ슜??ID瑜??쒕쾭媛 ?ъ슜?쒕떎.
+- ?덈젴 ?먮낯 肄섑뀗痢??뚯씠釉붿뿉??user_id瑜??ｌ? ?딅뒗??
+  ?? social_scenarios, safety_scenarios, safety_scenes, safety_choices, document_questions
+- ?ъ슜???섑뻾 寃곌낵 ?먮뒗 ?ъ슜?먮퀎 ?붿빟 ?뚯씠釉붿뿉??user_id瑜?吏곸젒 ??ν븳??
+  ?? training_sessions, user_*_progress, training_session_summaries, report_summary
+- ?몃? 濡쒓렇 ?뚯씠釉붿? session_id瑜??듯빐 user_id瑜?異붿쟻?쒕떎.
+  ?? social_dialog_logs, safety_action_logs, focus_reaction_logs, document_answer_logs
 ```
 
-## 1.3 training_session_summaries 필수 설계 기준
+## 1.2 ?뺥빀??蹂댁셿 湲곗?
 
-훈련 기록 목록 API와 훈련 현황 화면의 조회 성능 및 문서 간 정합성을 위해 `training_session_summaries`는 다음 필드를 포함한다.
+```
+- ?덈젴 湲곕줉 紐⑸줉 ?붾㈃? ?먮낯 濡쒓렇 ?뚯씠釉붿쓣 吏곸젒 議고쉶?섏? ?딄퀬 training_session_summaries瑜??곗꽑 議고쉶?쒕떎.
+- ?덈젴 ?곸꽭 ?붾㈃? session_id 湲곕컲?쇰줈 ?먮낯 濡쒓렇 ?뚯씠釉붿쓣 議고쉶?쒕떎.
+- training_session_summaries??紐⑸줉 ?붾㈃???꾩슂???쒕굹由ъ삤紐? 移댄뀒怨좊━, ?먯닔, ?뺣떟 ?? ?쇰뱶諛??붿빟???ㅻ깄???뺥깭濡?蹂닿??쒕떎.
+- 吏묒쨷???덈젴? 蹂꾨룄 ?곸꽭蹂닿린 API瑜??쒓났?섏? ?딄퀬, progress 議고쉶? sessions 紐⑸줉 議고쉶濡?寃곌낵 ?뺤씤???泥댄븳??
+- focus_reaction_logs???대? 遺꾩꽍, 由ы룷??怨꾩궛, ?댁쁺 ?먭? ?⑸룄濡??ъ슜?쒕떎.
+```
 
-### 필수 속성
+## 1.3 training_session_summaries ?꾩닔 ?ㅺ퀎 湲곗?
 
-| 속성명 | 설명 |
+?덈젴 湲곕줉 紐⑸줉 API? ?덈젴 ?꾪솴 ?붾㈃??議고쉶 ?깅뒫 諛?臾몄꽌 媛??뺥빀?깆쓣 ?꾪빐 `training_session_summaries`???ㅼ쓬 ?꾨뱶瑜??ы븿?쒕떎.
+
+### ?꾩닔 ?띿꽦
+
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| summary_id | 훈련 세션 요약 고유 ID |
-| user_id | 사용자 ID |
-| session_id | 훈련 세션 ID |
-| training_type | 훈련 유형: SOCIAL, SAFETY, FOCUS, DOCUMENT |
-| sub_type | 세부 유형. 사회성은 jobType, 집중력은 level 값 저장 |
-| scenario_id | 시나리오 ID. 시나리오 기반 훈련이 아닌 경우 NULL 허용 |
-| scenario_title | 목록 화면 표시용 시나리오 제목 스냅샷 |
-| category | 안전 훈련 카테고리 등 목록 필터용 분류값 |
-| score | 대표 점수 |
-| accuracy_rate | 정확도. 집중력 또는 정답률 기반 훈련에서 사용 |
-| correct_count | 정답 수 |
-| total_count | 전체 문항/선택/지시 수 |
-| wrong_count | 오답 수 |
-| average_reaction_ms | 평균 반응 시간. 집중력 훈련에서 사용 |
-| feedback_summary | 목록 화면 표시용 간략 피드백 |
-| completed_at | 훈련 완료 일시 |
-| created_at | 요약 생성 일시 |
+| summary_id | ?덈젴 ?몄뀡 ?붿빟 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| training_type | ?덈젴 ?좏삎: SOCIAL, SAFETY, FOCUS, DOCUMENT |
+| sub_type | ?몃? ?좏삎. ?ы쉶?깆? jobType, 吏묒쨷?μ? level 媛????|
+| scenario_id | ?쒕굹由ъ삤 ID. ?쒕굹由ъ삤 湲곕컲 ?덈젴???꾨땶 寃쎌슦 NULL ?덉슜 |
+| scenario_title | 紐⑸줉 ?붾㈃ ?쒖떆???쒕굹由ъ삤 ?쒕ぉ ?ㅻ깄??|
+| category | ?덉쟾 ?덈젴 移댄뀒怨좊━ ??紐⑸줉 ?꾪꽣??遺꾨쪟媛?|
+| score | ????먯닔 |
+| accuracy_rate | ?뺥솗?? 吏묒쨷???먮뒗 ?뺣떟瑜?湲곕컲 ?덈젴?먯꽌 ?ъ슜 |
+| correct_count | ?뺣떟 ??|
+| total_count | ?꾩껜 臾명빆/?좏깮/吏????|
+| wrong_count | ?ㅻ떟 ??|
+| average_reaction_ms | ?됯퇏 諛섏쓳 ?쒓컙. 吏묒쨷???덈젴?먯꽌 ?ъ슜 |
+| feedback_summary | 紐⑸줉 ?붾㈃ ?쒖떆??媛꾨왂 ?쇰뱶諛?|
+| completed_at | ?덈젴 ?꾨즺 ?쇱떆 |
+| created_at | ?붿빟 ?앹꽦 ?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: summary_id
-FK: user_id → users.user_id
-FK: session_id → training_sessions.session_id
+FK: user_id ??users.user_id
+FK: session_id ??training_sessions.session_id
 UNIQUE: session_id
 NOT NULL: user_id, session_id, training_type, completed_at, created_at
 CHECK: training_type IN ('SOCIAL', 'SAFETY', 'FOCUS', 'DOCUMENT')
-CHECK: score BETWEEN 0 AND 100 또는 NULL 허용
-CHECK: accuracy_rate BETWEEN 0 AND 100 또는 NULL 허용
-CHECK: correct_count >= 0 또는 NULL 허용
-CHECK: total_count >= 0 또는 NULL 허용
-CHECK: wrong_count >= 0 또는 NULL 허용
-CHECK: average_reaction_ms >= 0 또는 NULL 허용
+CHECK: score BETWEEN 0 AND 100 ?먮뒗 NULL ?덉슜
+CHECK: accuracy_rate BETWEEN 0 AND 100 ?먮뒗 NULL ?덉슜
+CHECK: correct_count >= 0 ?먮뒗 NULL ?덉슜
+CHECK: total_count >= 0 ?먮뒗 NULL ?덉슜
+CHECK: wrong_count >= 0 ?먮뒗 NULL ?덉슜
+CHECK: average_reaction_ms >= 0 ?먮뒗 NULL ?덉슜
 ```
 
-### 조회 기준
+### 議고쉶 湲곗?
 
 ```
-- 훈련 기록 목록 API는 training_session_summaries를 우선 조회한다.
-- 상세 조회 API는 training_session_summaries가 아니라 각 훈련별 원본 로그 테이블을 조회한다.
-- 훈련 완료 시 Training Service가 원본 로그, 점수, 피드백 저장 후 training_session_summaries를 생성한다.
+- ?덈젴 湲곕줉 紐⑸줉 API??training_session_summaries瑜??곗꽑 議고쉶?쒕떎.
+- ?곸꽭 議고쉶 API??training_session_summaries媛 ?꾨땲??媛??덈젴蹂??먮낯 濡쒓렇 ?뚯씠釉붿쓣 議고쉶?쒕떎.
+- ?덈젴 ?꾨즺 ??Training Service媛 ?먮낯 濡쒓렇, ?먯닔, ?쇰뱶諛??????training_session_summaries瑜??앹꽦?쒕떎.
 ```
 
-## 2. 핵심 ERD
+## 2. ?듭떖 ERD
 
 ```mermaid
 erDiagram
@@ -121,53 +120,53 @@ erDiagram
 
 ## 3.1 users
 
-사용자 계정과 기본 정보를 관리하기 위한 테이블.
+?ъ슜??怨꾩젙怨?湲곕낯 ?뺣낫瑜?愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| user_id | 사용자 고유 ID |
-| login_id | 로그인에 사용하는 아이디 |
-| password_hash | 비밀번호 해시값 |
-| name | 사용자 이름 |
-| birth_date | 생년월일 |
-| gender | 성별 |
-| email | 이메일 |
-| desired_job | 희망직무 |
-| status | 사용자 계정 상태 |
-| created_at | 생성일시 |
-| updated_at | 수정일시 |
-| last_login_at | 마지막 로그인 일시 |
+| user_id | ?ъ슜??怨좎쑀 ID |
+| login_id | 濡쒓렇?몄뿉 ?ъ슜?섎뒗 ?꾩씠??|
+| password_hash | 鍮꾨?踰덊샇 ?댁떆媛?|
+| name | ?ъ슜???대쫫 |
+| birth_date | ?앸뀈?붿씪 |
+| gender | ?깅퀎 |
+| email | ?대찓??|
+| desired_job | ?щ쭩吏곷Т |
+| status | ?ъ슜??怨꾩젙 ?곹깭 |
+| created_at | ?앹꽦?쇱떆 |
+| updated_at | ?섏젙?쇱떆 |
+| last_login_at | 留덉?留?濡쒓렇???쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: user_id
 UNIQUE: login_id, email
 NOT NULL: login_id, password_hash, name, birth_date, email, status, created_at
 CHECK: status IN ('ACTIVE', 'LOCKED', 'WITHDRAWN')
-CHECK: gender IN ('MALE', 'FEMALE', 'NONE') 또는 NULL 허용
+CHECK: gender IN ('MALE', 'FEMALE', 'NONE') ?먮뒗 NULL ?덉슜
 ```
 
 ## 3.2 user_disabilities
 
-사용자의 장애유형 중복 선택 정보를 저장하기 위한 테이블.
+?ъ슜?먯쓽 ?μ븷?좏삎 以묐났 ?좏깮 ?뺣낫瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| disability_id | 장애유형 선택 고유 ID |
-| user_id | 사용자 ID |
-| disability_type | 장애유형 |
-| created_at | 생성일시 |
+| disability_id | ?μ븷?좏삎 ?좏깮 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| disability_type | ?μ븷?좏삎 |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: disability_id
-FK: user_id → users.user_id
+FK: user_id ??users.user_id
 NOT NULL: user_id, disability_type, created_at
 UNIQUE: user_id + disability_type
 ```
@@ -178,52 +177,52 @@ UNIQUE: user_id + disability_type
 
 ## 4.1 training_sessions
 
-훈련 시작부터 종료까지의 공통 세션을 관리하기 위한 테이블.
+?덈젴 ?쒖옉遺??醫낅즺源뚯???怨듯넻 ?몄뀡??愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| session_id | 훈련 세션 고유 ID |
-| user_id | 사용자 ID |
-| training_type | 훈련 유형 |
-| sub_type | 세부 유형 |
-| scenario_id | 선택한 시나리오 ID |
-| status | 훈련 진행 상태 |
-| current_step | 현재 진행 단계 |
-| started_at | 시작일시 |
-| ended_at | 종료일시 |
+| session_id | ?덈젴 ?몄뀡 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| training_type | ?덈젴 ?좏삎 |
+| sub_type | ?몃? ?좏삎 |
+| scenario_id | ?좏깮???쒕굹由ъ삤 ID |
+| status | ?덈젴 吏꾪뻾 ?곹깭 |
+| current_step | ?꾩옱 吏꾪뻾 ?④퀎 |
+| started_at | ?쒖옉?쇱떆 |
+| ended_at | 醫낅즺?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: session_id
-FK: user_id → users.user_id
+FK: user_id ??users.user_id
 NOT NULL: user_id, training_type, status, started_at
 CHECK: training_type IN ('SOCIAL', 'SAFETY', 'FOCUS', 'DOCUMENT')
 CHECK: status IN ('IN_PROGRESS', 'COMPLETED', 'FAILED')
 CHECK: training_type != 'FOCUS' OR sub_type IS NOT NULL
-- 집중력 훈련의 sub_type에는 선택한 level 값을 저장한다.
+- 吏묒쨷???덈젴??sub_type?먮뒗 ?좏깮??level 媛믪쓣 ??ν븳??
 ```
 
 ## 4.2 social_scenarios
 
-사회성 훈련의 상황(시나리오) 콘텐츠를 관리하기 위한 테이블.
+?ы쉶???덈젴???곹솴(?쒕굹由ъ삤) 肄섑뀗痢좊? 愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| scenario_id | 시나리오 고유 ID |
-| job_type | 직무 유형 |
-| title | 시나리오 제목 |
-| background_text | 배경 설명 |
-| situation_text | 상황 설명 |
-| character_info | 등장 인물 정보 |
-| difficulty | 난이도 |
-| is_active | 사용 여부 |
+| scenario_id | ?쒕굹由ъ삤 怨좎쑀 ID |
+| job_type | 吏곷Т ?좏삎 |
+| title | ?쒕굹由ъ삤 ?쒕ぉ |
+| background_text | 諛곌꼍 ?ㅻ챸 |
+| situation_text | ?곹솴 ?ㅻ챸 |
+| character_info | ?깆옣 ?몃Ъ ?뺣낫 |
+| difficulty | ?쒖씠??|
+| is_active | ?ъ슜 ?щ? |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: scenario_id
@@ -234,24 +233,24 @@ DEFAULT: is_active = true
 
 ## 4.3 social_dialog_logs
 
-사회성 훈련의 사용자-AI 대화 로그를 저장하기 위한 테이블.
+?ы쉶???덈젴???ъ슜??AI ???濡쒓렇瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| log_id | 대화 로그 고유 ID |
-| session_id | 훈련 세션 ID |
-| turn_no | 대화 순서 |
-| speaker | 발화 주체 |
-| content | 대화 내용 |
-| created_at | 생성일시 |
+| log_id | ???濡쒓렇 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| turn_no | ????쒖꽌 |
+| speaker | 諛쒗솕 二쇱껜 |
+| content | ????댁슜 |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: log_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 NOT NULL: session_id, turn_no, speaker, content, created_at
 CHECK: speaker IN ('USER', 'AI')
 UNIQUE: session_id + turn_no + speaker
@@ -259,27 +258,27 @@ UNIQUE: session_id + turn_no + speaker
 
 ## 4.3.1 user_social_progress
 
-사용자별 사회성 훈련 최신 진행 요약을 관리하기 위한 테이블.
+?ъ슜?먮퀎 ?ы쉶???덈젴 理쒖떊 吏꾪뻾 ?붿빟??愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| progress_id | 사회성 진행 상태 고유 ID |
-| user_id | 사용자 ID |
-| recent_session_id | 최근 완료한 사회성 훈련 세션 ID |
-| recent_score | 최근 사회성 훈련 대표 점수 |
-| recent_feedback_summary | 최근 사회성 훈련 간략 피드백 |
-| completed_count | 완료한 사회성 훈련 횟수 |
-| last_completed_at | 마지막 완료일시 |
-| updated_at | 수정일시 |
+| progress_id | ?ы쉶??吏꾪뻾 ?곹깭 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| recent_session_id | 理쒓렐 ?꾨즺???ы쉶???덈젴 ?몄뀡 ID |
+| recent_score | 理쒓렐 ?ы쉶???덈젴 ????먯닔 |
+| recent_feedback_summary | 理쒓렐 ?ы쉶???덈젴 媛꾨왂 ?쇰뱶諛?|
+| completed_count | ?꾨즺???ы쉶???덈젴 ?잛닔 |
+| last_completed_at | 留덉?留??꾨즺?쇱떆 |
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: progress_id
-FK: user_id → users.user_id
-FK: recent_session_id → training_sessions.session_id
+FK: user_id ??users.user_id
+FK: recent_session_id ??training_sessions.session_id
 UNIQUE: user_id
 NOT NULL: user_id, completed_count, updated_at
 CHECK: recent_score BETWEEN 0 AND 100
@@ -288,20 +287,20 @@ CHECK: completed_count >= 0
 
 ## 4.4 safety_scenarios
 
-안전 훈련 시나리오를 관리하기 위한 테이블.
+?덉쟾 ?덈젴 ?쒕굹由ъ삤瑜?愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| scenario_id | 시나리오 고유 ID |
-| title | 시나리오 제목 |
-| category | 안전 훈련 상황 분류 |
-| description | 시나리오 설명 |
-| is_active | 사용 여부 |
-| created_at | 생성일시 |
+| scenario_id | ?쒕굹由ъ삤 怨좎쑀 ID |
+| title | ?쒕굹由ъ삤 ?쒕ぉ |
+| category | ?덉쟾 ?덈젴 ?곹솴 遺꾨쪟 |
+| description | ?쒕굹由ъ삤 ?ㅻ챸 |
+| is_active | ?ъ슜 ?щ? |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: scenario_id
@@ -312,25 +311,25 @@ DEFAULT: is_active = true
 
 ## 4.5 safety_scenes
 
-안전 훈련의 장면, 상황, 질문을 저장하기 위한 테이블.
+?덉쟾 ?덈젴???λ㈃, ?곹솴, 吏덈Ц????ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| scene_id | 장면 고유 ID |
-| scenario_id | 시나리오 ID |
-| scene_order | 장면 순서 |
-| screen_info | 화면 정보 |
-| situation_text | 상황 설명 |
-| question_text | 질문 내용 |
-| is_end_scene | 종료 장면 여부 |
+| scene_id | ?λ㈃ 怨좎쑀 ID |
+| scenario_id | ?쒕굹由ъ삤 ID |
+| scene_order | ?λ㈃ ?쒖꽌 |
+| screen_info | ?붾㈃ ?뺣낫 |
+| situation_text | ?곹솴 ?ㅻ챸 |
+| question_text | 吏덈Ц ?댁슜 |
+| is_end_scene | 醫낅즺 ?λ㈃ ?щ? |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: scene_id
-FK: scenario_id → safety_scenarios.scenario_id
+FK: scenario_id ??safety_scenarios.scenario_id
 NOT NULL: scenario_id, scene_order, situation_text, question_text, is_end_scene
 UNIQUE: scenario_id + scene_order
 DEFAULT: is_end_scene = false
@@ -338,75 +337,75 @@ DEFAULT: is_end_scene = false
 
 ## 4.6 safety_choices
 
-안전 훈련 장면별 선택지를 저장하기 위한 테이블.
+?덉쟾 ?덈젴 ?λ㈃蹂??좏깮吏瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| choice_id | 선택지 고유 ID |
-| scene_id | 장면 ID |
-| choice_text | 선택지 내용 |
-| next_scene_id | 다음 장면 ID |
-| is_correct | 올바른 선택 여부 |
+| choice_id | ?좏깮吏 怨좎쑀 ID |
+| scene_id | ?λ㈃ ID |
+| choice_text | ?좏깮吏 ?댁슜 |
+| next_scene_id | ?ㅼ쓬 ?λ㈃ ID |
+| is_correct | ?щ컮瑜??좏깮 ?щ? |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: choice_id
-FK: scene_id → safety_scenes.scene_id
-FK: next_scene_id → safety_scenes.scene_id
+FK: scene_id ??safety_scenes.scene_id
+FK: next_scene_id ??safety_scenes.scene_id
 NOT NULL: scene_id, choice_text, is_correct
 ```
 
 ## 4.7 safety_action_logs
 
-안전 훈련에서 사용자의 선택 이력을 저장하기 위한 테이블.
+?덉쟾 ?덈젴?먯꽌 ?ъ슜?먯쓽 ?좏깮 ?대젰????ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| action_id | 선택 이력 고유 ID |
-| session_id | 훈련 세션 ID |
-| scene_id | 장면 ID |
-| choice_id | 선택지 ID |
-| is_correct | 정답 여부 |
-| created_at | 생성일시 |
+| action_id | ?좏깮 ?대젰 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| scene_id | ?λ㈃ ID |
+| choice_id | ?좏깮吏 ID |
+| is_correct | ?뺣떟 ?щ? |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: action_id
-FK: session_id → training_sessions.session_id
-FK: scene_id → safety_scenes.scene_id
-FK: choice_id → safety_choices.choice_id
+FK: session_id ??training_sessions.session_id
+FK: scene_id ??safety_scenes.scene_id
+FK: choice_id ??safety_choices.choice_id
 NOT NULL: session_id, scene_id, choice_id, is_correct, created_at
 ```
 
 ## 4.7.1 user_safety_progress
 
-사용자별 안전 훈련 최신 진행 요약을 관리하기 위한 테이블.
+?ъ슜?먮퀎 ?덉쟾 ?덈젴 理쒖떊 吏꾪뻾 ?붿빟??愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| progress_id | 안전 진행 상태 고유 ID |
-| user_id | 사용자 ID |
-| recent_session_id | 최근 완료한 안전 훈련 세션 ID |
-| correct_count | 안전 훈련 정답 선택 수 |
-| total_count | 안전 훈련 전체 선택 수 |
-| completed_count | 완료한 안전 훈련 수 |
-| last_completed_at | 마지막 완료일시 |
-| updated_at | 수정일시 |
+| progress_id | ?덉쟾 吏꾪뻾 ?곹깭 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| recent_session_id | 理쒓렐 ?꾨즺???덉쟾 ?덈젴 ?몄뀡 ID |
+| correct_count | ?덉쟾 ?덈젴 ?뺣떟 ?좏깮 ??|
+| total_count | ?덉쟾 ?덈젴 ?꾩껜 ?좏깮 ??|
+| completed_count | ?꾨즺???덉쟾 ?덈젴 ??|
+| last_completed_at | 留덉?留??꾨즺?쇱떆 |
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: progress_id
-FK: user_id → users.user_id
-FK: recent_session_id → training_sessions.session_id
+FK: user_id ??users.user_id
+FK: recent_session_id ??training_sessions.session_id
 UNIQUE: user_id
 NOT NULL: user_id, correct_count, total_count, completed_count, updated_at
 CHECK: correct_count >= 0
@@ -417,22 +416,22 @@ CHECK: completed_count >= 0
 
 ## 4.8 focus_level_rules
 
-집중력 훈련의 단계별 규칙을 관리하기 위한 테이블.
+吏묒쨷???덈젴???④퀎蹂?洹쒖튃??愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| level | 집중력 훈련 단계 |
-| duration_seconds | 훈련 제한 시간. 기본 180초 |
-| command_interval_ms | 지시 표시 간격(ms) |
-| command_complexity | 지시 복잡도 |
-| required_accuracy_rate | 다음 단계 해금 기준 정확도 |
-| is_active | 사용 여부 |
-| created_at | 생성일시 |
-| updated_at | 수정일시 |
+| level | 吏묒쨷???덈젴 ?④퀎 |
+| duration_seconds | ?덈젴 ?쒗븳 ?쒓컙. 湲곕낯 180珥?|
+| command_interval_ms | 吏???쒖떆 媛꾧꺽(ms) |
+| command_complexity | 吏??蹂듭옟??|
+| required_accuracy_rate | ?ㅼ쓬 ?④퀎 ?닿툑 湲곗? ?뺥솗??|
+| is_active | ?ъ슜 ?щ? |
+| created_at | ?앹꽦?쇱떆 |
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: level
@@ -448,50 +447,50 @@ DEFAULT: is_active = true
 
 ## 4.9 focus_commands
 
-집중력 훈련에서 생성된 청기백기 지시 목록을 저장하기 위한 테이블.
+吏묒쨷???덈젴?먯꽌 ?앹꽦??泥?린諛깃린 吏??紐⑸줉????ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| command_id | 지시 고유 ID |
-| session_id | 훈련 세션 ID |
-| command_order | 지시 순서 |
-| command_text | 지시 내용 |
-| expected_action | 정답 동작 |
-| display_at_ms | 표시 시점(ms) |
+| command_id | 吏??怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| command_order | 吏???쒖꽌 |
+| command_text | 吏???댁슜 |
+| expected_action | ?뺣떟 ?숈옉 |
+| display_at_ms | ?쒖떆 ?쒖젏(ms) |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: command_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 NOT NULL: session_id, command_order, command_text, expected_action, display_at_ms
 UNIQUE: session_id + command_order
 ```
 
 ## 4.9 focus_reaction_logs
 
-집중력 훈련에서 사용자의 반응 결과를 저장하기 위한 테이블.
+吏묒쨷???덈젴?먯꽌 ?ъ슜?먯쓽 諛섏쓳 寃곌낵瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| reaction_id | 반응 로그 고유 ID |
-| command_id | 지시 ID |
-| session_id | 훈련 세션 ID |
-| user_input | 사용자 입력값 |
-| is_correct | 정답 여부 |
-| reaction_ms | 반응 시간(ms) |
-| created_at | 생성일시 |
+| reaction_id | 諛섏쓳 濡쒓렇 怨좎쑀 ID |
+| command_id | 吏??ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| user_input | ?ъ슜???낅젰媛?|
+| is_correct | ?뺣떟 ?щ? |
+| reaction_ms | 諛섏쓳 ?쒓컙(ms) |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: reaction_id
-FK: command_id → focus_commands.command_id
-FK: session_id → training_sessions.session_id
+FK: command_id ??focus_commands.command_id
+FK: session_id ??training_sessions.session_id
 NOT NULL: command_id, session_id, user_input, is_correct, reaction_ms, created_at
 UNIQUE: command_id + session_id
 CHECK: reaction_ms >= 0
@@ -499,26 +498,26 @@ CHECK: reaction_ms >= 0
 
 ## 4.10 user_focus_progress
 
-사용자별 집중력 훈련 단계 진행 상태를 관리하기 위한 테이블.
+?ъ슜?먮퀎 吏묒쨷???덈젴 ?④퀎 吏꾪뻾 ?곹깭瑜?愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| progress_id | 집중력 진행 상태 고유 ID |
-| user_id | 사용자 ID |
-| current_level | 현재 사용자가 도달한 집중력 훈련 단계 |
-| highest_unlocked_level | 사용자가 선택 가능한 최고 해금 단계 |
-| last_played_level | 마지막으로 수행한 단계 |
-| last_accuracy_rate | 마지막 수행 정확도 |
-| last_average_reaction_ms | 마지막 평균 반응 시간(ms) |
-| updated_at | 수정일시 |
+| progress_id | 吏묒쨷??吏꾪뻾 ?곹깭 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| current_level | ?꾩옱 ?ъ슜?먭? ?꾨떖??吏묒쨷???덈젴 ?④퀎 |
+| highest_unlocked_level | ?ъ슜?먭? ?좏깮 媛?ν븳 理쒓퀬 ?닿툑 ?④퀎 |
+| last_played_level | 留덉?留됱쑝濡??섑뻾???④퀎 |
+| last_accuracy_rate | 留덉?留??섑뻾 ?뺥솗??|
+| last_average_reaction_ms | 留덉?留??됯퇏 諛섏쓳 ?쒓컙(ms) |
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: progress_id
-FK: user_id → users.user_id
+FK: user_id ??users.user_id
 UNIQUE: user_id
 NOT NULL: user_id, current_level, highest_unlocked_level, updated_at
 CHECK: current_level >= 1
@@ -529,23 +528,23 @@ CHECK: last_average_reaction_ms >= 0
 
 ## 4.11 document_questions
 
-문서 이해 훈련의 문제와 정답 콘텐츠를 관리하기 위한 테이블.
+臾몄꽌 ?댄빐 ?덈젴??臾몄젣? ?뺣떟 肄섑뀗痢좊? 愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| question_id | 문제 고유 ID |
-| title | 문제 제목 |
-| document_text | 문서 본문 |
-| question_text | 질문 내용 |
-| question_type | 문제 유형 |
-| correct_answer | 정답 |
-| explanation | 해설 |
-| difficulty | 난이도 |
-| is_active | 사용 여부 |
+| question_id | 臾몄젣 怨좎쑀 ID |
+| title | 臾몄젣 ?쒕ぉ |
+| document_text | 臾몄꽌 蹂몃Ц |
+| question_text | 吏덈Ц ?댁슜 |
+| question_type | 臾몄젣 ?좏삎 |
+| correct_answer | ?뺣떟 |
+| explanation | ?댁꽕 |
+| difficulty | ?쒖씠??|
+| is_active | ?ъ슜 ?щ? |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: question_id
@@ -555,55 +554,55 @@ DEFAULT: is_active = true
 
 ## 4.12 document_answer_logs
 
-문서 이해 훈련의 문제별 답변 결과를 저장하기 위한 테이블.
+臾몄꽌 ?댄빐 ?덈젴??臾몄젣蹂??듬? 寃곌낵瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| answer_id | 답변 로그 고유 ID |
-| session_id | 훈련 세션 ID |
-| question_id | 문제 ID |
-| user_answer | 사용자 답변 |
-| correct_answer | 정답 |
-| is_correct | 정답 여부 |
-| explanation | 해설 |
-| created_at | 생성일시 |
+| answer_id | ?듬? 濡쒓렇 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| question_id | 臾몄젣 ID |
+| user_answer | ?ъ슜???듬? |
+| correct_answer | ?뺣떟 |
+| is_correct | ?뺣떟 ?щ? |
+| explanation | ?댁꽕 |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: answer_id
-FK: session_id → training_sessions.session_id
-FK: question_id → document_questions.question_id
+FK: session_id ??training_sessions.session_id
+FK: question_id ??document_questions.question_id
 NOT NULL: session_id, question_id, user_answer, correct_answer, is_correct, created_at
 UNIQUE: session_id + question_id
 ```
 
 ## 4.12.1 user_document_progress
 
-사용자별 문서 이해 훈련 최신 진행 요약을 관리하기 위한 테이블.
+?ъ슜?먮퀎 臾몄꽌 ?댄빐 ?덈젴 理쒖떊 吏꾪뻾 ?붿빟??愿由ы븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| progress_id | 문서 이해 진행 상태 고유 ID |
-| user_id | 사용자 ID |
-| recent_session_id | 최근 완료한 문서 이해 훈련 세션 ID |
-| correct_count | 최근 문서 이해 훈련 정답 수 |
-| total_count | 최근 문서 이해 훈련 전체 문제 수 |
-| recent_score | 최근 문서 이해 훈련 대표 점수 |
-| completed_count | 완료한 문서 이해 훈련 횟수 |
-| last_completed_at | 마지막 완료일시 |
-| updated_at | 수정일시 |
+| progress_id | 臾몄꽌 ?댄빐 吏꾪뻾 ?곹깭 怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| recent_session_id | 理쒓렐 ?꾨즺??臾몄꽌 ?댄빐 ?덈젴 ?몄뀡 ID |
+| correct_count | 理쒓렐 臾몄꽌 ?댄빐 ?덈젴 ?뺣떟 ??|
+| total_count | 理쒓렐 臾몄꽌 ?댄빐 ?덈젴 ?꾩껜 臾몄젣 ??|
+| recent_score | 理쒓렐 臾몄꽌 ?댄빐 ?덈젴 ????먯닔 |
+| completed_count | ?꾨즺??臾몄꽌 ?댄빐 ?덈젴 ?잛닔 |
+| last_completed_at | 留덉?留??꾨즺?쇱떆 |
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: progress_id
-FK: user_id → users.user_id
-FK: recent_session_id → training_sessions.session_id
+FK: user_id ??users.user_id
+FK: recent_session_id ??training_sessions.session_id
 UNIQUE: user_id
 NOT NULL: user_id, correct_count, total_count, completed_count, updated_at
 CHECK: correct_count >= 0
@@ -615,29 +614,29 @@ CHECK: completed_count >= 0
 
 ## 4.13 training_scores
 
-훈련 세션의 대표 점수와 유형별 산출 지표를 저장하기 위한 테이블.
+?덈젴 ?몄뀡??????먯닔? ?좏삎蹂??곗텧 吏?쒕? ??ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| score_id | 훈련 점수 고유 ID |
-| session_id | 훈련 세션 ID |
-| score | 대표 점수 |
-| score_type | 점수 산출 방식 |
-| correct_count | 정답 수 |
-| total_count | 전체 문항/선택/지시 수 |
-| accuracy_rate | 정확도 |
-| wrong_count | 오답 수 |
-| average_reaction_ms | 평균 반응 시간(ms). 집중력 훈련에서 사용 |
-| raw_metrics_json | 훈련 유형별 추가 산출 지표 JSON |
-| created_at | 생성일시 |
+| score_id | ?덈젴 ?먯닔 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| score | ????먯닔 |
+| score_type | ?먯닔 ?곗텧 諛⑹떇 |
+| correct_count | ?뺣떟 ??|
+| total_count | ?꾩껜 臾명빆/?좏깮/吏????|
+| accuracy_rate | ?뺥솗??|
+| wrong_count | ?ㅻ떟 ??|
+| average_reaction_ms | ?됯퇏 諛섏쓳 ?쒓컙(ms). 吏묒쨷???덈젴?먯꽌 ?ъ슜 |
+| raw_metrics_json | ?덈젴 ?좏삎蹂?異붽? ?곗텧 吏??JSON |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: score_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 UNIQUE: session_id
 NOT NULL: session_id, score, score_type, created_at
 CHECK: score BETWEEN 0 AND 100
@@ -652,66 +651,66 @@ CHECK: average_reaction_ms >= 0
 
 ## 4.14 training_feedbacks
 
-훈련 세션별 피드백을 저장하기 위한 테이블.
+?덈젴 ?몄뀡蹂??쇰뱶諛깆쓣 ??ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| feedback_id | 피드백 고유 ID |
-| session_id | 훈련 세션 ID |
-| feedback_type | 피드백 유형 |
-| summary | 목록/요약 화면에 표시할 간략 피드백 |
-| detail_text | 상세 피드백 본문 |
-| created_at | 생성일시 |
+| feedback_id | ?쇰뱶諛?怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| feedback_type | ?쇰뱶諛??좏삎 |
+| summary | 紐⑸줉/?붿빟 ?붾㈃???쒖떆??媛꾨왂 ?쇰뱶諛?|
+| detail_text | ?곸꽭 ?쇰뱶諛?蹂몃Ц |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: feedback_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 NOT NULL: session_id, feedback_type, summary, created_at
 CHECK: feedback_type IN ('AI', 'RULE_BASED', 'SYSTEM')
 ```
 
 ## 4.15 training_session_summaries
 
-훈련 기록 목록 화면에 표시할 사용자별 세션 요약 정보를 저장하기 위한 테이블.
+?덈젴 湲곕줉 紐⑸줉 ?붾㈃???쒖떆???ъ슜?먮퀎 ?몄뀡 ?붿빟 ?뺣낫瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| summary_id | 훈련 기록 요약 고유 ID |
-| session_id | 훈련 세션 ID |
-| user_id | 사용자 ID |
-| training_type | 훈련 유형 |
-| scenario_id | 훈련에 사용된 시나리오 ID |
-| scenario_title | 목록에 표시할 시나리오 제목 |
-| category | 안전 훈련 카테고리. 안전 훈련이 아닌 경우 NULL |
-| title | 목록에 표시할 훈련 제목 |
-| score | 대표 점수 |
-| summary_text | 목록에 표시할 요약 문구 |
-| feedback_summary | 목록에 표시할 간략 피드백 |
-| correct_count | 정답 수 |
-| total_count | 전체 문항/선택/지시 수 |
-| accuracy_rate | 정확도 |
-| wrong_count | 오답 수 |
-| played_level | 집중력 훈련 수행 단계 |
-| average_reaction_ms | 평균 반응 시간(ms) |
-| completed_at | 훈련 완료일시 |
-| created_at | 생성일시 |
+| summary_id | ?덈젴 湲곕줉 ?붿빟 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| user_id | ?ъ슜??ID |
+| training_type | ?덈젴 ?좏삎 |
+| scenario_id | ?덈젴???ъ슜???쒕굹由ъ삤 ID |
+| scenario_title | 紐⑸줉???쒖떆???쒕굹由ъ삤 ?쒕ぉ |
+| category | ?덉쟾 ?덈젴 移댄뀒怨좊━. ?덉쟾 ?덈젴???꾨땶 寃쎌슦 NULL |
+| title | 紐⑸줉???쒖떆???덈젴 ?쒕ぉ |
+| score | ????먯닔 |
+| summary_text | 紐⑸줉???쒖떆???붿빟 臾멸뎄 |
+| feedback_summary | 紐⑸줉???쒖떆??媛꾨왂 ?쇰뱶諛?|
+| correct_count | ?뺣떟 ??|
+| total_count | ?꾩껜 臾명빆/?좏깮/吏????|
+| accuracy_rate | ?뺥솗??|
+| wrong_count | ?ㅻ떟 ??|
+| played_level | 吏묒쨷???덈젴 ?섑뻾 ?④퀎 |
+| average_reaction_ms | ?됯퇏 諛섏쓳 ?쒓컙(ms) |
+| completed_at | ?덈젴 ?꾨즺?쇱떆 |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: summary_id
-FK: session_id → training_sessions.session_id
-FK: user_id → users.user_id
+FK: session_id ??training_sessions.session_id
+FK: user_id ??users.user_id
 UNIQUE: session_id
 NOT NULL: session_id, user_id, training_type, title, completed_at, created_at
 CHECK: training_type IN ('SOCIAL', 'SAFETY', 'FOCUS', 'DOCUMENT')
-CHECK: category IN ('SEXUAL_EDUCATION', 'INFECTIOUS_DISEASE', 'COMMUTE_SAFETY') 또는 NULL 허용
+CHECK: category IN ('SEXUAL_EDUCATION', 'INFECTIOUS_DISEASE', 'COMMUTE_SAFETY') ?먮뒗 NULL ?덉슜
 CHECK: score BETWEEN 0 AND 100
 CHECK: correct_count >= 0
 CHECK: total_count >= 0
@@ -722,39 +721,39 @@ CHECK: played_level >= 1
 CHECK: average_reaction_ms >= 0
 ```
 
-### 저장 기준
+### ???湲곗?
 
 ```
-- 훈련 완료 시 Training Service가 training_scores, training_feedbacks, 각 훈련 로그 저장 후 함께 생성한다.
-- 훈련 기록 목록 조회 API는 user_id와 training_type을 조건으로 이 테이블만 조회한다.
-- 안전 훈련 기록은 category를 함께 저장해 성 관련 교육, 감염병 교육, 출퇴근 안전 교육을 구분한다.
-- 상세보기 API는 기존 로그/점수/피드백 원본 테이블을 조회한다.
-- session_id만으로도 사용자 추적은 가능하지만, 목록 조회 성능과 사용자별 필터링을 위해 user_id를 중복 저장한다.
+- ?덈젴 ?꾨즺 ??Training Service媛 training_scores, training_feedbacks, 媛??덈젴 濡쒓렇 ??????④퍡 ?앹꽦?쒕떎.
+- ?덈젴 湲곕줉 紐⑸줉 議고쉶 API??user_id? training_type??議곌굔?쇰줈 ???뚯씠釉붾쭔 議고쉶?쒕떎.
+- ?덉쟾 ?덈젴 湲곕줉? category瑜??④퍡 ??ν빐 ??愿??援먯쑁, 媛먯뿼蹂?援먯쑁, 異쒗눜洹??덉쟾 援먯쑁??援щ텇?쒕떎.
+- ?곸꽭蹂닿린 API??湲곗〈 濡쒓렇/?먯닔/?쇰뱶諛??먮낯 ?뚯씠釉붿쓣 議고쉶?쒕떎.
+- session_id留뚯쑝濡쒕룄 ?ъ슜??異붿쟻? 媛?ν븯吏留? 紐⑸줉 議고쉶 ?깅뒫怨??ъ슜?먮퀎 ?꾪꽣留곸쓣 ?꾪빐 user_id瑜?以묐났 ??ν븳??
 ```
 
 ## 4.14 training_scores
 
-훈련 세션별 리포트 표시용 대표 점수와 공통 결과를 저장하기 위한 테이블.
+?덈젴 ?몄뀡蹂?由ы룷???쒖떆??????먯닔? 怨듯넻 寃곌낵瑜???ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| score_id | 점수 고유 ID |
-| session_id | 훈련 세션 ID |
-| score | 리포트에 표시할 대표 점수 |
-| score_type | 점수 산정 방식 |
-| accuracy_rate | 정답률 기반 훈련의 정확도 |
-| wrong_count | 오답 수 |
-| level_result | 집중력 훈련 단계 결과 |
-| raw_metrics_json | 훈련별 세부 지표 JSON |
-| created_at | 생성일시 |
+| score_id | ?먯닔 怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| score | 由ы룷?몄뿉 ?쒖떆??????먯닔 |
+| score_type | ?먯닔 ?곗젙 諛⑹떇 |
+| accuracy_rate | ?뺣떟瑜?湲곕컲 ?덈젴???뺥솗??|
+| wrong_count | ?ㅻ떟 ??|
+| level_result | 吏묒쨷???덈젴 ?④퀎 寃곌낵 |
+| raw_metrics_json | ?덈젴蹂??몃? 吏??JSON |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: score_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 UNIQUE: session_id
 NOT NULL: session_id, score, score_type, created_at
 CHECK: score BETWEEN 0 AND 100
@@ -762,35 +761,35 @@ CHECK: score_type IN ('AI_EVALUATION', 'ACCURACY_RATE', 'REACTION_PERFORMANCE', 
 CHECK: accuracy_rate BETWEEN 0 AND 100
 CHECK: wrong_count >= 0
 
-훈련별 사용 예시:
-- 사회성 훈련: score_type = 'AI_EVALUATION', raw_metrics_json에 대화 품질/응답 적절성/사회적 표현 점수 저장
-- 안전 훈련: score_type = 'CHOICE_RESULT', raw_metrics_json에 전체 선택 수/정답 선택 수/위험 선택 수 저장
-- 집중력 훈련: score_type = 'REACTION_PERFORMANCE', raw_metrics_json에 평균 반응시간/지시 수 등 세션 상세 지표 저장
-- 집중력 훈련의 현재 단계와 해금 단계는 user_focus_progress에 별도 저장
-- 문서 이해 훈련: score_type = 'ACCURACY_RATE', raw_metrics_json에 전체 문제 수/정답 수/오답 수 저장
+?덈젴蹂??ъ슜 ?덉떆:
+- ?ы쉶???덈젴: score_type = 'AI_EVALUATION', raw_metrics_json??????덉쭏/?묐떟 ?곸젅???ы쉶???쒗쁽 ?먯닔 ???
+- ?덉쟾 ?덈젴: score_type = 'CHOICE_RESULT', raw_metrics_json???꾩껜 ?좏깮 ???뺣떟 ?좏깮 ???꾪뿕 ?좏깮 ?????
+- 吏묒쨷???덈젴: score_type = 'REACTION_PERFORMANCE', raw_metrics_json???됯퇏 諛섏쓳?쒓컙/吏???????몄뀡 ?곸꽭 吏?????
+- 吏묒쨷???덈젴???꾩옱 ?④퀎? ?닿툑 ?④퀎??user_focus_progress??蹂꾨룄 ???
+- 臾몄꽌 ?댄빐 ?덈젴: score_type = 'ACCURACY_RATE', raw_metrics_json???꾩껜 臾몄젣 ???뺣떟 ???ㅻ떟 ?????
 ```
 
 ## 4.15 training_feedbacks
 
-훈련별 피드백과 해석 내용을 저장하기 위한 테이블.
+?덈젴蹂??쇰뱶諛깃낵 ?댁꽍 ?댁슜????ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| feedback_id | 피드백 고유 ID |
-| session_id | 훈련 세션 ID |
-| feedback_type | 피드백 유형 |
-| feedback_source | 피드백 생성 주체 |
-| summary | 피드백 요약 |
-| detail_text | 상세 피드백 |
-| created_at | 생성일시 |
+| feedback_id | ?쇰뱶諛?怨좎쑀 ID |
+| session_id | ?덈젴 ?몄뀡 ID |
+| feedback_type | ?쇰뱶諛??좏삎 |
+| feedback_source | ?쇰뱶諛??앹꽦 二쇱껜 |
+| summary | ?쇰뱶諛??붿빟 |
+| detail_text | ?곸꽭 ?쇰뱶諛?|
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: feedback_id
-FK: session_id → training_sessions.session_id
+FK: session_id ??training_sessions.session_id
 NOT NULL: session_id, feedback_type, feedback_source, summary, created_at
 CHECK: feedback_type IN ('SUMMARY', 'DETAIL', 'RECOMMENDATION')
 CHECK: feedback_source IN ('AI', 'SYSTEM')
@@ -798,30 +797,29 @@ CHECK: feedback_source IN ('AI', 'SYSTEM')
 
 ---
 
-# 5. report_db
 
 ## 5.1 report_summary
 
-사용자별 최신 리포트 요약을 저장하기 위한 테이블.
+?ъ슜?먮퀎 理쒖떊 由ы룷???붿빟????ν븯湲??꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| report_id | 리포트 고유 ID |
-| user_id | 사용자 ID |
-| social_score | 사회성 훈련 점수 |
-| safety_score | 안전 훈련 점수 |
-| focus_score | 집중력 훈련 점수 |
-| document_score | 문서 이해 훈련 점수 |
-| progress_rate | 전체 진행률 |
-| readiness_score | 직무 준비도 점수 |
-| strengths_text | 강점 내용 |
-| weaknesses_text | 보완점 내용 |
-| comment_text | 종합 코멘트 |
-| updated_at | 수정일시 |
+| report_id | 由ы룷??怨좎쑀 ID |
+| user_id | ?ъ슜??ID |
+| social_score | ?ы쉶???덈젴 ?먯닔 |
+| safety_score | ?덉쟾 ?덈젴 ?먯닔 |
+| focus_score | 吏묒쨷???덈젴 ?먯닔 |
+| document_score | 臾몄꽌 ?댄빐 ?덈젴 ?먯닔 |
+| progress_rate | ?꾩껜 吏꾪뻾瑜?|
+| readiness_score | 吏곷Т 以鍮꾨룄 ?먯닔 |
+| strengths_text | 媛뺤젏 ?댁슜 |
+| weaknesses_text | 蹂댁셿???댁슜 |
+| comment_text | 醫낇빀 肄붾찘??|
+| updated_at | ?섏젙?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: report_id
@@ -837,28 +835,28 @@ CHECK: readiness_score BETWEEN 0 AND 100
 
 ## 5.2 report_snapshots
 
-특정 시점의 리포트를 보관하기 위한 테이블.
+?뱀젙 ?쒖젏??由ы룷?몃? 蹂닿??섍린 ?꾪븳 ?뚯씠釉?
 
-### 속성
+### ?띿꽦
 
-| 속성명 | 설명 |
+| ?띿꽦紐?| ?ㅻ챸 |
 | --- | --- |
-| snapshot_id | 스냅샷 고유 ID |
-| report_id | 리포트 ID |
-| snapshot_json | 리포트 스냅샷 JSON |
-| created_at | 생성일시 |
+| snapshot_id | ?ㅻ깄??怨좎쑀 ID |
+| report_id | 由ы룷??ID |
+| snapshot_json | 由ы룷???ㅻ깄??JSON |
+| created_at | ?앹꽦?쇱떆 |
 
-### 제약 조건
+### ?쒖빟 議곌굔
 
 ```
 PK: snapshot_id
-FK: report_id → report_summary.report_id
+FK: report_id ??report_summary.report_id
 NOT NULL: report_id, snapshot_json, created_at
 ```
 
 ---
 
-# 6. 인덱스 전략
+# 6. ?몃뜳???꾨왂
 
 ```
 users(login_id)
@@ -881,19 +879,20 @@ training_session_summaries(user_id, training_type, category, completed_at)
 report_summary(user_id)
 ```
 
-# 7. 운영 고려사항
+# 7. ?댁쁺 怨좊젮?ы빆
 
 ```
-- Refresh Token은 RDB 테이블에 저장하지 않고 Redis에 저장한다.
-- Redis Key 형식은 refresh_token:{userId}로 관리한다.
-- 로그인 성공 시 Refresh Token을 Redis에 저장하고, 로그아웃 시 해당 Key를 삭제한다.
-- Refresh Token 만료 시간은 Redis TTL로 관리한다.
-- Access Token 블랙리스트가 필요한 경우 token_blacklist:{tokenId} 또는 token_blacklist:{accessTokenHash} 형태로 Redis에 저장한다.
-- 모든 사용자별 조회는 인증 토큰에서 추출한 user_id를 기준으로 수행한다.
-- session_id 기반 상세 조회 시 해당 session_id가 현재 user_id의 세션인지 반드시 검증한다.
-- 개인정보(email 등)는 암호화 또는 마스킹 정책을 적용한다.
-- password_hash에는 원문 비밀번호를 저장하지 않는다.
-- 대화 로그와 반응 로그는 데이터 증가량이 크므로 파티셔닝을 고려한다.
-- 훈련 종료 시 세션, 로그, 점수, 피드백 저장은 트랜잭션으로 처리한다.
-- 리포트는 TrainingCompleted 이벤트 기반으로 비동기 갱신한다.
+- Refresh Token? RDB ?뚯씠釉붿뿉 ??ν븯吏 ?딄퀬 Redis????ν븳??
+- Redis Key ?뺤떇? refresh_token:{userId}濡?愿由ы븳??
+- 濡쒓렇???깃났 ??Refresh Token??Redis????ν븯怨? 濡쒓렇?꾩썐 ???대떦 Key瑜???젣?쒕떎.
+- Refresh Token 留뚮즺 ?쒓컙? Redis TTL濡?愿由ы븳??
+- Access Token 釉붾옓由ъ뒪?멸? ?꾩슂??寃쎌슦 token_blacklist:{tokenId} ?먮뒗 token_blacklist:{accessTokenHash} ?뺥깭濡?Redis????ν븳??
+- 紐⑤뱺 ?ъ슜?먮퀎 議고쉶???몄쬆 ?좏겙?먯꽌 異붿텧??user_id瑜?湲곗??쇰줈 ?섑뻾?쒕떎.
+- session_id 湲곕컲 ?곸꽭 議고쉶 ???대떦 session_id媛 ?꾩옱 user_id???몄뀡?몄? 諛섎뱶??寃利앺븳??
+- 媛쒖씤?뺣낫(email ?????뷀샇???먮뒗 留덉뒪???뺤콉???곸슜?쒕떎.
+- password_hash?먮뒗 ?먮Ц 鍮꾨?踰덊샇瑜???ν븯吏 ?딅뒗??
+- ???濡쒓렇? 諛섏쓳 濡쒓렇???곗씠??利앷??됱씠 ?щ?濡??뚰떚?붾떇??怨좊젮?쒕떎.
+- ?덈젴 醫낅즺 ???몄뀡, 濡쒓렇, ?먯닔, ?쇰뱶諛???μ? ?몃옖??뀡?쇰줈 泥섎━?쒕떎.
+- 由ы룷?몃뒗 TrainingCompleted ?대깽??湲곕컲?쇰줈 鍮꾨룞湲?媛깆떊?쒕떎.
 ```
+
