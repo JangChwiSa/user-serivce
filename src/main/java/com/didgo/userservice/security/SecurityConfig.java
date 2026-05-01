@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
                         // 내부 API는 별도 헤더 인증을 통과한 호출만 허용한다.
-                        .requestMatchers("/internal/**").hasRole("INTERNAL")
+                        .requestMatchers("/internal/**").authenticated()
                         // 그 외 /api/** 요청은 Gateway가 전달한 인증 헤더가 필요하다.
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
