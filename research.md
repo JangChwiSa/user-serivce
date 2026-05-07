@@ -97,7 +97,6 @@
 ?듭떖 ?뚯씪:
 
 - `[SecurityConfig.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/SecurityConfig.java)`
-- `[JwtAuthenticationFilter.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/JwtAuthenticationFilter.java)`
 - `[InternalApiKeyFilter.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/InternalApiKeyFilter.java)`
 - `[JwtTokenProvider.java](/Users/byeok27/Documents/GitHub/user-service/src/main/java/com/didgo/userservice/security/JwtTokenProvider.java)`
 
@@ -469,4 +468,3 @@
 ?꾩옱 ??μ냼 ?꾩껜瑜?湲곗??쇰줈 蹂대㈃:
 
 - gRPC ?꾪솚源뚯? ?ы븿??援ъ“ 媛쒗렪? ?꾩쭅 吏꾪뻾 以묒씠??
-
