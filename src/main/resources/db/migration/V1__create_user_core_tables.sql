@@ -14,13 +14,3 @@ CREATE TABLE users (
     CONSTRAINT uk_users_login_id UNIQUE (login_id),
     CONSTRAINT uk_users_email UNIQUE (email)
 );
-
-CREATE TABLE user_disabilities (
-    disability_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    disability_type VARCHAR(100) NOT NULL,
-    created_at DATETIME NOT NULL,
-    CONSTRAINT fk_user_disabilities_user
-        FOREIGN KEY (user_id) REFERENCES users(user_id),
-    CONSTRAINT uk_user_disability UNIQUE (user_id, disability_type)
-);

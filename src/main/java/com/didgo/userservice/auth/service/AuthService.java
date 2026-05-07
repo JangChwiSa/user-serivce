@@ -12,13 +12,10 @@ import com.didgo.userservice.common.exception.ErrorCode;
 import com.didgo.userservice.security.JwtTokenProvider;
 import com.didgo.userservice.user.domain.AccountStatus;
 import com.didgo.userservice.user.domain.User;
-import com.didgo.userservice.user.domain.UserDisability;
-import com.didgo.userservice.user.repository.UserDisabilityRepository;
 import com.didgo.userservice.user.repository.UserRepository;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final UserDisabilityRepository userDisabilityRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
@@ -51,9 +47,8 @@ public class AuthService {
                 now
         );
         User savedUser = userRepository.save(user);
-        saveDisabilities(savedUser, request.disabilities(), now);
 
-        return new SignupResponse(savedUser.getUserId(), "회원가입이 완료되었습니다.");
+        return new SignupResponse(savedUser.getUserId(), "?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??");
     }
 
     @Transactional
@@ -74,13 +69,11 @@ public class AuthService {
         long refreshTokenExpiration = jwtTokenProvider.getRefreshTokenExpirationSeconds(request.rememberMe());
         refreshTokenService.save(user.getUserId(), refreshToken, Duration.ofSeconds(refreshTokenExpiration));
 
-        List<String> disabilities = getDisabilities(user.getUserId());
         LoginResponse.UserLoginView userView = new LoginResponse.UserLoginView(
                 user.getUserId(),
                 user.getLoginId(),
                 user.getName(),
                 user.getEmail(),
-                disabilities,
                 user.getDesiredJob()
         );
         return new LoginResponse(accessToken, refreshToken, userView);
@@ -88,7 +81,7 @@ public class AuthService {
 
     public LogoutResponse logout(Long userId) {
         refreshTokenService.delete(userId);
-        return new LogoutResponse("로그아웃이 완료되었습니다.");
+        return new LogoutResponse("濡쒓렇?꾩썐???꾨즺?섏뿀?듬땲??");
     }
 
     @Transactional(readOnly = true)
@@ -96,7 +89,6 @@ public class AuthService {
         jwtTokenProvider.validateRefreshToken(request.refreshToken());
         Long userId = jwtTokenProvider.extractUserId(request.refreshToken());
 
-        // JWT 자체가 유효해도, 서버에 저장된 최신 Refresh Token과 일치해야만 재발급한다.
         String savedToken = refreshTokenService.get(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REFRESH_TOKEN_MISMATCH));
 
@@ -135,20 +127,5 @@ public class AuthService {
         if (user.getStatus() == AccountStatus.WITHDRAWN) {
             throw new BusinessException(ErrorCode.WITHDRAWN_ACCOUNT);
         }
-    }
-
-    private void saveDisabilities(User user, List<String> disabilities, LocalDateTime now) {
-        List<UserDisability> disabilityEntities = disabilities.stream()
-                // 같은 장애 유형이 중복으로 들어와도 DB에는 한 번만 저장한다.
-                .distinct()
-                .map(disability -> UserDisability.create(user, disability, now))
-                .toList();
-        userDisabilityRepository.saveAll(disabilityEntities);
-    }
-
-    private List<String> getDisabilities(Long userId) {
-        return userDisabilityRepository.findAllByUserUserIdOrderByDisabilityIdAsc(userId).stream()
-                .map(UserDisability::getDisabilityType)
-                .toList();
     }
 }

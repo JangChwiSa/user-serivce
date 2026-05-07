@@ -18,21 +18,17 @@ import com.didgo.userservice.security.JwtTokenProvider;
 import com.didgo.userservice.user.domain.AccountStatus;
 import com.didgo.userservice.user.domain.Gender;
 import com.didgo.userservice.user.domain.User;
-import com.didgo.userservice.user.domain.UserDisability;
-import com.didgo.userservice.user.repository.UserDisabilityRepository;
 import com.didgo.userservice.user.repository.UserRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,9 +39,6 @@ class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UserDisabilityRepository userDisabilityRepository;
 
     @Mock
     private RefreshTokenService refreshTokenService;
@@ -72,7 +65,6 @@ class AuthServiceTest {
         );
         authService = new AuthService(
                 userRepository,
-                userDisabilityRepository,
                 passwordEncoder,
                 jwtTokenProvider,
                 refreshTokenService,
@@ -81,16 +73,15 @@ class AuthServiceTest {
     }
 
     @Test
-    void signupCreatesUserAndDisabilities() {
+    void signupCreatesUser() {
         SignupRequest request = new SignupRequest(
                 "user01",
                 "password1234",
-                "홍길동",
+                "Hong Gil-dong",
                 LocalDate.of(2000, 1, 1),
                 Gender.MALE,
                 "user@example.com",
-                List.of("발달장애", "청각장애"),
-                "사무직"
+                "Office Clerk"
         );
         User savedUser = User.create(
                 request.loginId(),
@@ -111,35 +102,25 @@ class AuthServiceTest {
         var response = authService.signup(request);
 
         assertThat(response.userId()).isEqualTo(1L);
-        assertThat(response.message()).isEqualTo("회원가입이 완료되었습니다.");
+        assertThat(response.message()).isEqualTo("?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??");
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getPasswordHash()).isNotEqualTo(request.password());
         assertThat(passwordEncoder.matches(request.password(), userCaptor.getValue().getPasswordHash())).isTrue();
-
-        ArgumentCaptor<List<UserDisability>> disabilityCaptor = ArgumentCaptor.forClass(List.class);
-        verify(userDisabilityRepository).saveAll(disabilityCaptor.capture());
-        assertThat(disabilityCaptor.getValue()).extracting(UserDisability::getDisabilityType)
-                .containsExactly("발달장애", "청각장애");
     }
 
     @Test
     void loginStoresRefreshTokenAndReturnsTokens() {
         User user = createPersistedUser(1L, "user01", AccountStatus.ACTIVE);
         when(userRepository.findByLoginId("user01")).thenReturn(Optional.of(user));
-        when(userDisabilityRepository.findAllByUserUserIdOrderByDisabilityIdAsc(1L))
-                .thenReturn(List.of(
-                        UserDisability.create(user, "발달장애", LocalDateTime.now(clock)),
-                        UserDisability.create(user, "청각장애", LocalDateTime.now(clock))
-                ));
 
         var response = authService.login(new LoginRequest("user01", "password1234", true));
 
         assertThat(response.accessToken()).isNotBlank();
         assertThat(response.refreshToken()).isNotBlank();
         assertThat(response.user().userId()).isEqualTo(1L);
-        assertThat(response.user().disabilities()).containsExactly("발달장애", "청각장애");
+        assertThat(response.user().desiredJob()).isEqualTo("Office Clerk");
         verify(refreshTokenService).save(eq(1L), eq(response.refreshToken()), any());
     }
 
@@ -171,7 +152,7 @@ class AuthServiceTest {
     void logoutDeletesRefreshToken() {
         var response = authService.logout(1L);
 
-        assertThat(response.message()).isEqualTo("로그아웃이 완료되었습니다.");
+        assertThat(response.message()).isEqualTo("濡쒓렇?꾩썐???꾨즺?섏뿀?듬땲??");
         verify(refreshTokenService).delete(1L);
     }
 
@@ -179,11 +160,11 @@ class AuthServiceTest {
         User user = User.create(
                 loginId,
                 passwordEncoder.encode("password1234"),
-                "홍길동",
+                "Hong Gil-dong",
                 LocalDate.of(2000, 1, 1),
                 Gender.MALE,
                 "user@example.com",
-                "사무직",
+                "Office Clerk",
                 LocalDateTime.now(clock)
         );
         setUserId(user, userId);

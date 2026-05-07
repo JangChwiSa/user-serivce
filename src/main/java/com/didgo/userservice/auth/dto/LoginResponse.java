@@ -1,7 +1,5 @@
 package com.didgo.userservice.auth.dto;
 
-import java.util.List;
-
 public record LoginResponse(
         String accessToken,
         String refreshToken,
@@ -12,7 +10,6 @@ public record LoginResponse(
             String loginId,
             String name,
             String email,
-            List<String> disabilities,
             String desiredJob
     ) {
     }
