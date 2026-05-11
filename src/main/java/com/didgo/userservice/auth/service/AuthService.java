@@ -48,7 +48,7 @@ public class AuthService {
         );
         User savedUser = userRepository.save(user);
 
-        return new SignupResponse(savedUser.getUserId(), "?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??");
+        return new SignupResponse(savedUser.getUserId(), "회원가입이 완료되었습니다.");
     }
 
     @Transactional
@@ -81,7 +81,7 @@ public class AuthService {
 
     public LogoutResponse logout(Long userId) {
         refreshTokenService.delete(userId);
-        return new LogoutResponse("濡쒓렇?꾩썐???꾨즺?섏뿀?듬땲??");
+        return new LogoutResponse("로그아웃이 완료되었습니다.");
     }
 
     @Transactional(readOnly = true)

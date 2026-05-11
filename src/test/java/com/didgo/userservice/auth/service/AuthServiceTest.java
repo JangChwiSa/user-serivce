@@ -102,7 +102,7 @@ class AuthServiceTest {
         var response = authService.signup(request);
 
         assertThat(response.userId()).isEqualTo(1L);
-        assertThat(response.message()).isEqualTo("?뚯썝媛?낆씠 ?꾨즺?섏뿀?듬땲??");
+        assertThat(response.message()).isEqualTo("회원가입이 완료되었습니다.");
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
@@ -152,7 +152,7 @@ class AuthServiceTest {
     void logoutDeletesRefreshToken() {
         var response = authService.logout(1L);
 
-        assertThat(response.message()).isEqualTo("濡쒓렇?꾩썐???꾨즺?섏뿀?듬땲??");
+        assertThat(response.message()).isEqualTo("로그아웃이 완료되었습니다.");
         verify(refreshTokenService).delete(1L);
     }
 

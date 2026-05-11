@@ -44,7 +44,7 @@ public class UserService {
         LocalDateTime now = LocalDateTime.now(clock);
         user.updateProfile(request.name(), request.gender(), request.email(), request.desiredJob(), now);
 
-        return new UpdateUserProfileResponse("?ъ슜???뺣낫媛 ?섏젙?섏뿀?듬땲??");
+        return new UpdateUserProfileResponse("사용자 정보가 수정되었습니다.");
     }
 
     @Transactional(readOnly = true)
